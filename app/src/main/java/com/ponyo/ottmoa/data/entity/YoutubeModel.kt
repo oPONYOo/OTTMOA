@@ -23,6 +23,7 @@ data class UserInfoSnippet(
     val title: String
 )
 
+
 data class Localized(
     val description: String,
     val title: String

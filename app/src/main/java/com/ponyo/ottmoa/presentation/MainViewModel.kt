@@ -8,7 +8,6 @@ class MainViewModel(
 ): ViewModel() {
 
     init {
-
     }
 
     private suspend fun fetchChannels() {

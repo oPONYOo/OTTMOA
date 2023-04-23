@@ -5,6 +5,7 @@ import retrofit2.http.GET
 import retrofit2.http.Query
 
 interface YoutubeApi {
+
     @GET("channels")
     suspend fun getUserInfo(
         @Query("key") key: String = "",
