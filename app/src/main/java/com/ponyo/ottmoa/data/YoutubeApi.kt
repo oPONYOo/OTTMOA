@@ -7,7 +7,7 @@ import retrofit2.http.Query
 interface YoutubeApi {
     @GET("channels")
     suspend fun getUserInfo(
-        @Query("key") key: String = "AIzaSyDK2OBHursfshaXPyLRTN3XWMdhzShYfqs",
+        @Query("key") key: String = "",
         @Query("part") part: String = "id, snippet",
         @Query("id") channelId: String,
     ): Result<YoutubeUserInfoSet>
