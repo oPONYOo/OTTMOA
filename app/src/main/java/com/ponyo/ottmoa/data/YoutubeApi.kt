@@ -8,8 +8,8 @@ interface YoutubeApi {
 
     @GET("channels")
     suspend fun getUserInfo(
-        @Query("key") key: String = "",
+        @Query("key") key: String = " ",
         @Query("part") part: String = "id, snippet",
-        @Query("id") channelId: String,
+        @Query("id") channelId: String = "Netflix",
     ): Result<YoutubeUserInfoSet>
 }

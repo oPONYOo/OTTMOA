@@ -8,8 +8,9 @@ interface YoutubeRepository {
     suspend fun getChannelInfo(): Result<YoutubeUserInfoSet>
 }
 
-class YoutubeRepositoryImpl(private val youtubeApi: YoutubeApi): YoutubeRepository {
-
+class YoutubeRepositoryImpl(
+    private val youtubeApi: YoutubeApi
+) : YoutubeRepository, YoutubeApi by youtubeApi {
 
 
     override suspend fun getChannelInfo(): Result<YoutubeUserInfoSet> =
