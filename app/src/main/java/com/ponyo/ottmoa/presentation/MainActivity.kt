@@ -2,12 +2,11 @@ package com.ponyo.ottmoa.presentation
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.viewModels
 import com.ponyo.ottmoa.R
 import com.ponyo.ottmoa.provider.MainViewModelProvider
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -19,17 +18,19 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        CoroutineScope(Dispatchers.Main).launch {
-            viewModel.fetchChannels()
-        }
-
+        viewModel.fetchChannels()
+        viewModel.fetchVideoItems()
         setObservers()
 
     }
 
     private fun setObservers() {
         viewModel.channelInfo.observe(this) {
-            println(it)
+            Log.e("CHANNEL", "$it")
+        }
+
+        viewModel.videoItems.observe(this) {
+            Log.e("ITEMS", "$it ")
         }
     }
 }

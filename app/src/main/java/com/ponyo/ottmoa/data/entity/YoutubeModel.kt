@@ -7,6 +7,45 @@ data class YoutubeUserInfoSet(
     val pageInfo: PageInfo
 )
 
+data class YoutubeChannelVideos(
+    val etag: String,
+    val items: List<YoutubeChannelVideo>,
+    val kind: String,
+    val nextPageToken: String,
+    val pageInfo: PageInfo,
+    val regionCode: String
+)
+
+data class YoutubeChannelVideo(
+    val etag: String,
+    val id: Id,
+    val kind: String,
+    val snippet: Snippet
+)
+
+data class Id(
+    val kind: String,
+    val videoId: String
+)
+
+data class Snippet(
+    val channelId: String,
+    val channelTitle: String,
+    val description: String,
+    val liveBroadcastContent: String,
+    val publishTime: String,
+    val publishedAt: String,
+    val thumbnails: ChannelThumbnails,
+    val title: String
+)
+
+data class ChannelThumbnails(
+    val default: Default,
+    val high: High,
+    val medium: Medium
+)
+
+
 data class YoutubeUserInfo(
     val etag: String,
     val id: String,
