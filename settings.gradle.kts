@@ -13,4 +13,4 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "OTTMOA"
-include ':app'
+include(":app")
