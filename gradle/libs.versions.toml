@@ -1,0 +1,33 @@
+[versions]
+ktx = "1.10.0"
+appcompat = "1.6.1"
+material = "1.8.0"
+junit = "4.13.2"
+testext = "1.1.5"
+testespresso = "3.5.1"
+retrofit = "2.9.0"
+coroutine = "1.6.4"
+lifecycle = "2.6.1"
+hilt = "2.44"
+activity = "1.7.1"
+
+[libraries]
+androidx-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "ktx" }
+appcompat-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
+material-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+junit-junit = { group = "junit", name = "junit", version.ref = "junit" }
+test-ext = { group = "androidx.test.ext", name = "junit", version.ref = "testext" }
+test-espresso = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "testespresso" }
+retrofit2-retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
+retrofit2-converter = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
+coroutine-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutine" }
+androidx-viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
+androidx-livedata = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycle" }
+hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
+hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
+activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activity"}
+
+
+[bundles]
+retrofit = ["retrofit2-retrofit", "retrofit2-converter"]
+lifecycle = ["androidx-viewmodel", "androidx-livedata"]

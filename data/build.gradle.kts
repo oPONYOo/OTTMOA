@@ -1,30 +1,37 @@
+import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
+
 plugins {
-    id("com.android.application")
+    id("com.android.library")
     kotlin("android")
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
 }
 
-
+fun getApiKey(propertyKey: String): String {
+    return gradleLocalProperties(rootDir).getProperty(propertyKey)
+}
 
 android {
-    namespace = "com.ponyo.ottmoa"
+    namespace = "com.ponyo.data"
     compileSdk = 33
 
     defaultConfig {
-        applicationId = "com.ponyo.ottmoa"
         minSdk = 24
         targetSdk = 33
-        versionCode = 1
-        versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles("consumer-rules.pro")
+        buildConfigField("String", "KEY", getApiKey("KEY"))
+
     }
 
     buildTypes {
-        getByName("release") {
-            isMinifyEnabled = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+        release {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
     compileOptions {
@@ -34,13 +41,10 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-
-    packagingOptions {
-        exclude("META-INF/gradle/incremental.annotation.processors")
-    }
 }
 
 dependencies {
+    implementation(project(":domain"))
 
     implementation(libs.androidx.ktx)
     implementation(libs.appcompat.appcompat)
@@ -53,13 +57,6 @@ dependencies {
     implementation(libs.bundles.lifecycle)
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
-
-
-    implementation(project(":presentation"))
-    implementation(project(":domain"))
-    implementation(project(":data"))
-
-
 }
 
 kapt {

@@ -1,4 +1,4 @@
-package com.ponyo.ottmoa.data.entity
+package com.ponyo.domain.entity
 
 data class YoutubeUserInfoSet(
     val etag: String,

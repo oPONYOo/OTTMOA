@@ -1,17 +1,18 @@
-package com.ponyo.ottmoa.presentation
+package com.ponyo.presentation
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ponyo.ottmoa.data.YoutubeRepository
-import com.ponyo.ottmoa.data.entity.YoutubeChannelVideos
-import com.ponyo.ottmoa.data.entity.YoutubeUserInfo
-import com.ponyo.ottmoa.data.entity.YoutubeUserInfoSet
-import kotlinx.coroutines.flow.MutableStateFlow
+import com.ponyo.domain.entity.YoutubeChannelVideos
+import com.ponyo.domain.entity.YoutubeUserInfoSet
+import com.ponyo.domain.YoutubeRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class MainViewModel(
+@HiltViewModel
+class MainViewModel @Inject constructor(
     private val youtubeRepository: YoutubeRepository,
 ) : ViewModel() {
 
