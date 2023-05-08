@@ -1,30 +1,29 @@
 plugins {
-    id("com.android.application")
+    id("com.android.library")
     kotlin("android")
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
 }
 
-
-
 android {
-    namespace = "com.ponyo.ottmoa"
+    namespace = "com.ponyo.presentation"
     compileSdk = 33
 
     defaultConfig {
-        applicationId = "com.ponyo.ottmoa"
         minSdk = 24
         targetSdk = 33
-        versionCode = 1
-        versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
-        getByName("release") {
-            isMinifyEnabled = true
-            proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
+        release {
+            isMinifyEnabled = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
         }
     }
     compileOptions {
@@ -34,13 +33,10 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
     }
-
-    packagingOptions {
-        exclude("META-INF/gradle/incremental.annotation.processors")
-    }
 }
 
 dependencies {
+    implementation(project(":domain"))
 
     implementation(libs.androidx.ktx)
     implementation(libs.appcompat.appcompat)
@@ -50,14 +46,10 @@ dependencies {
     implementation(libs.test.espresso)
     implementation(libs.bundles.retrofit)
     implementation(libs.coroutine.android)
-    implementation(libs.bundles.lifecycle)
     implementation(libs.hilt.android)
+    implementation(libs.activity.ktx)
     kapt(libs.hilt.compiler)
 
-
-    implementation(project(":presentation"))
-    implementation(project(":domain"))
-    implementation(project(":data"))
 
 
 }

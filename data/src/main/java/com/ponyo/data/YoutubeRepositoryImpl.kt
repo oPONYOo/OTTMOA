@@ -1,16 +1,8 @@
-package com.ponyo.ottmoa.data
+package com.ponyo.data
 
-import com.ponyo.ottmoa.BuildConfig
-import com.ponyo.ottmoa.data.entity.YoutubeChannelVideos
-import com.ponyo.ottmoa.data.entity.YoutubeUserInfoSet
-import kotlinx.coroutines.flow.Flow
-
-
-interface YoutubeRepository {
-    suspend fun getChannelInfo(): YoutubeUserInfoSet
-
-    suspend fun getVideoItems(): YoutubeChannelVideos
-}
+import com.ponyo.domain.entity.YoutubeChannelVideos
+import com.ponyo.domain.entity.YoutubeUserInfoSet
+import com.ponyo.domain.YoutubeRepository
 
 class YoutubeRepositoryImpl(
     private val youtubeApi: YoutubeApi
@@ -23,4 +15,3 @@ class YoutubeRepositoryImpl(
     override suspend fun getVideoItems(): YoutubeChannelVideos =
         youtubeApi.getChannelVideos(channelId = "UCiEEF51uRAeZeCo8CJFhGWw", order = "date")
 }
-

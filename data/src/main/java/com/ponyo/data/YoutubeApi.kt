@@ -1,8 +1,7 @@
-package com.ponyo.ottmoa.data
+package com.ponyo.data
 
-import com.ponyo.ottmoa.BuildConfig
-import com.ponyo.ottmoa.data.entity.YoutubeChannelVideos
-import com.ponyo.ottmoa.data.entity.YoutubeUserInfoSet
+import com.ponyo.domain.entity.YoutubeChannelVideos
+import com.ponyo.domain.entity.YoutubeUserInfoSet
 import retrofit2.http.GET
 import retrofit2.http.Query
 
