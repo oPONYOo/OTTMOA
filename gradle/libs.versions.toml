@@ -10,6 +10,7 @@ coroutine = "1.6.4"
 lifecycle = "2.6.1"
 hilt = "2.44"
 activity = "1.7.1"
+compose = "1.4.3"
 
 [libraries]
 androidx-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "ktx" }
@@ -26,8 +27,15 @@ androidx-livedata = { group = "androidx.lifecycle", name = "lifecycle-livedata-k
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
 activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activity"}
+compose-animation = { group = "androidx.compose.animation", name = "animation", version.ref = "compose"}
+compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "compose"}
+compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "compose"}
+compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "compose"}
+
+
 
 
 [bundles]
 retrofit = ["retrofit2-retrofit", "retrofit2-converter"]
 lifecycle = ["androidx-viewmodel", "androidx-livedata"]
+compose = ["compose-animation", "compose-foundation", "compose-runtime", "compose-ui"]
