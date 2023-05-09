@@ -30,8 +30,14 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.4.7"
+    }
     kotlinOptions {
         jvmTarget = "1.8"
+    }
+    buildFeatures {
+        compose = true
     }
 }
 
@@ -48,7 +54,24 @@ dependencies {
     implementation(libs.coroutine.android)
     implementation(libs.hilt.android)
     implementation(libs.activity.ktx)
+    implementation(libs.bundles.compose)
     kapt(libs.hilt.compiler)
+
+    implementation("androidx.compose.material:material-icons-core")
+    implementation("androidx.compose.ui:ui-tooling-preview")
+    debugImplementation("androidx.compose.ui:ui-tooling")
+    // Optional - Integration with activities
+    implementation("androidx.activity:activity-compose:1.7.1")
+    // Optional - Integration with ViewModels
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.1")
+    // Optional - Integration with LiveData
+    implementation("androidx.compose.runtime:runtime-livedata")
+
+
+    implementation("androidx.compose.foundation:foundation:1.4.3")
+    // Material Design
+    implementation("androidx.compose.material:material:1.4.3")
+
 
 
 
