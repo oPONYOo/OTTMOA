@@ -71,7 +71,7 @@ dependencies {
     implementation("androidx.compose.foundation:foundation:1.4.3")
     // Material Design
     implementation("androidx.compose.material:material:1.4.3")
-
+    implementation("io.coil-kt:coil-compose:2.3.0")
 
 
 
