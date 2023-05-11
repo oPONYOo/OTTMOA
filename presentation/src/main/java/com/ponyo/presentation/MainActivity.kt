@@ -7,6 +7,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -23,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.ponyo.presentation.model.Channel
+import com.ponyo.presentation.model.Feed
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint
@@ -35,8 +37,8 @@ class MainActivity : AppCompatActivity() {
         setContent {
             Column {
                 ChannelList()
+                FeedList()
             }
-//            MessageCard("JINA")
         }
 
         /*viewModel.fetchChannels()
@@ -66,7 +68,7 @@ class MainActivity : AppCompatActivity() {
                     start = 10.dp,
                     end = 10.dp
                 )
-            ) {
+        ) {
             items(channelList, key = { item -> item.recentDate }) { item ->
                 ChannelItem(item = item)
             }
@@ -75,7 +77,27 @@ class MainActivity : AppCompatActivity() {
 
     }
 
-    @Preview
+    @Composable
+    fun FeedList() {
+        val img =
+            "https://i.ytimg.com/vi/MvpahYjX8WE/hqdefault.jpg"
+        val feedList = listOf(
+            Feed(thumbnail = img, date = 1, description = "이 영상은 어쩌고", bookMarked = false),
+            Feed(thumbnail = img, date = 2, bookMarked = false),
+            Feed(thumbnail = img, date = 3, description = "이 영상은 어쩌고", bookMarked = false),
+            Feed(thumbnail = img, date = 4, description = "이 영상은 어쩌고", bookMarked = false),
+            Feed(thumbnail = img, date = 5, description = "이 영상은 어쩌고", bookMarked = false),
+            Feed(thumbnail = img, date = 6, bookMarked = false),
+            Feed(thumbnail = img, date = 7, description = "이 영상은 어쩌고", bookMarked = false),
+            Feed(thumbnail = img, date = 8, description = "이 영상은 어쩌고", bookMarked = false),
+        )
+        LazyColumn {
+            items(feedList, key = { item -> item.date }) { item ->
+                FeedItem(item = item)
+            }
+        }
+    }
+
     @Composable
     fun ChannelItem(item: Channel) {
         Box(
@@ -101,8 +123,34 @@ class MainActivity : AppCompatActivity() {
                     )
             }
         }
+    }
 
+    @Composable
+    fun FeedItem(item: Feed) {
+        Box(
+            modifier = Modifier
+                .wrapContentSize()
+        )
+        {
+            Surface(
+                modifier = Modifier
+            )
+            {
+                Row {
+                    AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                            .data(item.thumbnail)
+                            .crossfade(true)
+                            .build(),
+                        contentDescription = "ImageRequest example",
 
+                        )
+                    Spacer(modifier = Modifier.width(5.dp))
+                    item.description?.let { Text(text = it) }
+                }
+                
+            }
+        }
     }
 
     private fun setObservers() {
