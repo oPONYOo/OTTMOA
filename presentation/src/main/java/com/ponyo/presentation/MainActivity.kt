@@ -34,10 +34,35 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val feedImg =
+            "https://i.ytimg.com/vi/MvpahYjX8WE/hqdefault.jpg"
+        val feedList = listOf(
+            Feed(thumbnail = feedImg, date = 1, description = "이 영상은 어쩌고", bookMarked = false),
+            Feed(thumbnail = feedImg, date = 2, bookMarked = false),
+            Feed(thumbnail = feedImg, date = 3, description = "이 영상은 어쩌고", bookMarked = false),
+            Feed(thumbnail = feedImg, date = 4, description = "이 영상은 어쩌고", bookMarked = false),
+            Feed(thumbnail = feedImg, date = 5, description = "이 영상은 어쩌고", bookMarked = false),
+            Feed(thumbnail = feedImg, date = 6, bookMarked = false),
+            Feed(thumbnail = feedImg, date = 7, description = "이 영상은 어쩌고", bookMarked = false),
+            Feed(thumbnail = feedImg, date = 8, description = "이 영상은 어쩌고", bookMarked = false),
+        )
+
+        val channelImg =
+            "https://yt3.ggpht.com/SXKyE4XgHJtX4qLS-9FKDuZt9EpBfeFPlGmNQdqsfxW2FDaKOjE53Mb20E43QuQfNDritLK1aw=s88-c-k-c0x00ffffff-no-rj"
+        val channelList = listOf(
+            Channel(thumbnail = channelImg, channelName = "NETFLIX", recentDate = 1),
+            Channel(thumbnail = channelImg, channelName = "NETFLIXKOREA", recentDate = 2),
+            Channel(thumbnail = channelImg, channelName = "NETFLIXENG", recentDate = 3),
+            Channel(thumbnail = channelImg, channelName = "NETFLIXKOREA", recentDate = 4),
+            Channel(thumbnail = channelImg, channelName = "NETFLIXENG", recentDate = 5),
+            Channel(thumbnail = channelImg, channelName = "NETFLIXKOREA", recentDate = 6),
+            Channel(thumbnail = channelImg, channelName = "NETFLIXENG", recentDate = 7),
+        )
+
         setContent {
             Column {
-                ChannelList()
-                FeedList()
+                ChannelList(channelList = channelList)
+                FeedList(feedList = feedList)
             }
         }
 
@@ -48,111 +73,6 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    @Composable
-    fun ChannelList() {
-        val img =
-            "https://yt3.ggpht.com/SXKyE4XgHJtX4qLS-9FKDuZt9EpBfeFPlGmNQdqsfxW2FDaKOjE53Mb20E43QuQfNDritLK1aw=s88-c-k-c0x00ffffff-no-rj"
-        val channelList = listOf(
-            Channel(thumbnail = img, channelName = "NETFLIX", recentDate = 1),
-            Channel(thumbnail = img, channelName = "NETFLIXKOREA", recentDate = 2),
-            Channel(thumbnail = img, channelName = "NETFLIXENG", recentDate = 3),
-            Channel(thumbnail = img, channelName = "NETFLIXKOREA", recentDate = 4),
-            Channel(thumbnail = img, channelName = "NETFLIXENG", recentDate = 5),
-            Channel(thumbnail = img, channelName = "NETFLIXKOREA", recentDate = 6),
-            Channel(thumbnail = img, channelName = "NETFLIXENG", recentDate = 7),
-        )
-        LazyRow(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier
-                .padding(
-                    start = 10.dp,
-                    end = 10.dp
-                )
-        ) {
-            items(channelList, key = { item -> item.recentDate }) { item ->
-                ChannelItem(item = item)
-            }
-        }
-
-
-    }
-
-    @Composable
-    fun FeedList() {
-        val img =
-            "https://i.ytimg.com/vi/MvpahYjX8WE/hqdefault.jpg"
-        val feedList = listOf(
-            Feed(thumbnail = img, date = 1, description = "이 영상은 어쩌고", bookMarked = false),
-            Feed(thumbnail = img, date = 2, bookMarked = false),
-            Feed(thumbnail = img, date = 3, description = "이 영상은 어쩌고", bookMarked = false),
-            Feed(thumbnail = img, date = 4, description = "이 영상은 어쩌고", bookMarked = false),
-            Feed(thumbnail = img, date = 5, description = "이 영상은 어쩌고", bookMarked = false),
-            Feed(thumbnail = img, date = 6, bookMarked = false),
-            Feed(thumbnail = img, date = 7, description = "이 영상은 어쩌고", bookMarked = false),
-            Feed(thumbnail = img, date = 8, description = "이 영상은 어쩌고", bookMarked = false),
-        )
-        LazyColumn {
-            items(feedList, key = { item -> item.date }) { item ->
-                FeedItem(item = item)
-            }
-        }
-    }
-
-    @Composable
-    fun ChannelItem(item: Channel) {
-        Box(
-            modifier = Modifier
-                .size(85.dp)
-                .clip(CircleShape)
-                .background(Color.Red)
-        )
-        {
-            Surface(
-                shape = CircleShape, modifier = Modifier
-                    .size(80.dp)
-                    .align(Alignment.Center)
-            )
-            {
-                AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                        .data(item.thumbnail)
-                        .crossfade(true)
-                        .build(),
-                    contentDescription = "ImageRequest example",
-
-                    )
-            }
-        }
-    }
-
-    @Composable
-    fun FeedItem(item: Feed) {
-        Box(
-            modifier = Modifier
-                .wrapContentSize()
-        )
-        {
-            Surface(
-                modifier = Modifier
-            )
-            {
-                Row {
-                    AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                            .data(item.thumbnail)
-                            .crossfade(true)
-                            .build(),
-                        contentDescription = "ImageRequest example",
-
-                        )
-                    Spacer(modifier = Modifier.width(5.dp))
-                    item.description?.let { Text(text = it) }
-                }
-                
-            }
-        }
-    }
-
     private fun setObservers() {
         viewModel.channelInfo.observe(this) {
             Log.e("CHANNEL", "$it")
@@ -161,5 +81,119 @@ class MainActivity : AppCompatActivity() {
         viewModel.videoItems.observe(this) {
             Log.e("ITEMS", "$it ")
         }
+    }
+}
+@Composable
+fun ChannelList(channelList: List<Channel>) {
+    LazyRow(
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier
+            .padding(
+                start = 10.dp,
+                end = 10.dp
+            )
+    ) {
+        items(channelList, key = { item -> item.recentDate }) { item ->
+            ChannelItem(item = item)
+        }
+    }
+
+
+}
+@Composable
+fun FeedList(feedList: List<Feed>) {
+
+    LazyColumn {
+        items(feedList, key = { item -> item.date }) { item ->
+            FeedItem(item = item)
+        }
+    }
+}
+
+@Composable
+fun ChannelItem(item: Channel) {
+    Box(
+        modifier = Modifier
+            .size(85.dp)
+            .clip(CircleShape)
+            .background(Color.Red)
+    )
+    {
+        Surface(
+            shape = CircleShape, modifier = Modifier
+                .size(80.dp)
+                .align(Alignment.Center)
+        )
+        {
+            AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(item.thumbnail)
+                    .crossfade(true)
+                    .build(),
+                contentDescription = "ImageRequest example",
+
+                )
+        }
+    }
+}
+
+@Composable
+fun FeedItem(item: Feed) {
+    Box(
+        modifier = Modifier
+            .wrapContentSize()
+    )
+    {
+        Surface(
+            modifier = Modifier
+        )
+        {
+            Row {
+                AsyncImage(
+                    model = ImageRequest.Builder(LocalContext.current)
+                        .data(item.thumbnail)
+                        .crossfade(true)
+                        .build(),
+                    contentDescription = "ImageRequest example",
+
+                    )
+                Spacer(modifier = Modifier.width(5.dp))
+                item.description?.let { Text(text = it) }
+            }
+
+        }
+    }
+}
+
+@Preview
+@Composable
+fun PreviewScreen() {
+    val feedImg =
+        "https://i.ytimg.com/vi/MvpahYjX8WE/hqdefault.jpg"
+    val feedList = listOf(
+        Feed(thumbnail = feedImg, date = 1, description = "이 영상은 어쩌고", bookMarked = false),
+        Feed(thumbnail = feedImg, date = 2, bookMarked = false),
+        Feed(thumbnail = feedImg, date = 3, description = "이 영상은 어쩌고", bookMarked = false),
+        Feed(thumbnail = feedImg, date = 4, description = "이 영상은 어쩌고", bookMarked = false),
+        Feed(thumbnail = feedImg, date = 5, description = "이 영상은 어쩌고", bookMarked = false),
+        Feed(thumbnail = feedImg, date = 6, bookMarked = false),
+        Feed(thumbnail = feedImg, date = 7, description = "이 영상은 어쩌고", bookMarked = false),
+        Feed(thumbnail = feedImg, date = 8, description = "이 영상은 어쩌고", bookMarked = false),
+    )
+
+    val channelImg =
+        "https://yt3.ggpht.com/SXKyE4XgHJtX4qLS-9FKDuZt9EpBfeFPlGmNQdqsfxW2FDaKOjE53Mb20E43QuQfNDritLK1aw=s88-c-k-c0x00ffffff-no-rj"
+    val channelList = listOf(
+        Channel(thumbnail = channelImg, channelName = "NETFLIX", recentDate = 1),
+        Channel(thumbnail = channelImg, channelName = "NETFLIXKOREA", recentDate = 2),
+        Channel(thumbnail = channelImg, channelName = "NETFLIXENG", recentDate = 3),
+        Channel(thumbnail = channelImg, channelName = "NETFLIXKOREA", recentDate = 4),
+        Channel(thumbnail = channelImg, channelName = "NETFLIXENG", recentDate = 5),
+        Channel(thumbnail = channelImg, channelName = "NETFLIXKOREA", recentDate = 6),
+        Channel(thumbnail = channelImg, channelName = "NETFLIXENG", recentDate = 7),
+    )
+    Column {
+        ChannelList(channelList = channelList)
+        FeedList(feedList = feedList)
     }
 }
