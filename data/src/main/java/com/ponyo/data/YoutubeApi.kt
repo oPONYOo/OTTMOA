@@ -1,7 +1,7 @@
 package com.ponyo.data
 
-import com.ponyo.domain.entity.YoutubeChannelVideos
-import com.ponyo.domain.entity.YoutubeUserInfoSet
+import com.ponyo.data.entity.YoutubeChannelVideosResponse
+import com.ponyo.data.entity.YoutubeUserInfoSetResponse
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -12,7 +12,7 @@ interface YoutubeApi {
         @Query("key") key: String = BuildConfig.KEY,
         @Query("part") part: String = "id, snippet",
         @Query("id") channelId: String,
-    ): YoutubeUserInfoSet
+    ): YoutubeUserInfoSetResponse
 
     @GET("search")
     suspend fun getChannelVideos(
@@ -21,5 +21,5 @@ interface YoutubeApi {
         @Query("channelId") channelId: String,
         @Query("order") order: String,
         @Query("maxResults") maxResults: Int = 10,
-    ): YoutubeChannelVideos
+    ): YoutubeChannelVideosResponse
 }

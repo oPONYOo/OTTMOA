@@ -13,14 +13,14 @@ import com.ponyo.domain.entity.UserInfoSnippet
 import com.ponyo.domain.entity.YoutubeChannelVideo
 import com.ponyo.domain.entity.YoutubeUserInfo
 
-data class YoutubeUserInfoSet(
+data class YoutubeUserInfoSetResponse(
     val etag: String,
     val items: List<YoutubeUserInfo>,
     val kind: String,
     val pageInfo: PageInfo
 )
 
-data class YoutubeChannelVideos(
+data class YoutubeChannelVideosResponse(
     val etag: String,
     val items: List<YoutubeChannelVideo>,
     val kind: String,
@@ -29,19 +29,19 @@ data class YoutubeChannelVideos(
     val regionCode: String
 )
 
-data class YoutubeChannelVideo(
+data class YoutubeChannelVideoResponse(
     val etag: String,
     val id: Id,
     val kind: String,
     val snippet: Snippet
 )
 
-data class Id(
+data class IdResponse(
     val kind: String,
     val videoId: String
 )
 
-data class Snippet(
+data class SnippetResponse(
     val channelId: String,
     val channelTitle: String,
     val description: String,
@@ -52,21 +52,21 @@ data class Snippet(
     val title: String
 )
 
-data class ChannelThumbnails(
+data class ChannelThumbnailsResponse(
     val default: Default,
     val high: High,
     val medium: Medium
 )
 
 
-data class YoutubeUserInfo(
+data class YoutubeUserInfoResponse(
     val etag: String,
     val id: String,
     val kind: String,
     val snippet: UserInfoSnippet
 )
 
-data class UserInfoSnippet(
+data class UserInfoSnippetResponse(
     val country: String,
     val description: String,
     val localized: Localized,
@@ -76,35 +76,35 @@ data class UserInfoSnippet(
 )
 
 
-data class Localized(
+data class LocalizedResponse(
     val description: String,
     val title: String
 )
 
-data class PageInfo(
+data class PageInfoResponse(
     val resultsPerPage: Int,
     val totalResults: Int
 )
 
-data class Thumbnails(
+data class ThumbnailsResponse(
     val default: Default,
     val high: High,
     val medium: Medium
 )
 
-data class Default(
+data class DefaultResponse(
     val height: Int,
     val url: String,
     val width: Int
 )
 
-data class High(
+data class HighResponse(
     val height: Int,
     val url: String,
     val width: Int
 )
 
-data class Medium(
+data class MediumResponse(
     val height: Int,
     val url: String,
     val width: Int
