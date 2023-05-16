@@ -5,9 +5,9 @@ import com.ponyo.domain.entity.YoutubeUserInfoSet
 
 
 interface YoutubeRepository {
-    suspend fun getChannelInfo(): YoutubeUserInfoSet
+    suspend fun getChannelInfo(channelId: String): YoutubeUserInfoSet
 
-    suspend fun getVideoItems(): YoutubeChannelVideos
+    suspend fun getVideoItems(channelId: String): YoutubeChannelVideos
 }
 
 
