@@ -3,6 +3,8 @@ package com.ponyo.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ponyo.domain.YoutubeRepository
+import com.ponyo.domain.usecase.GetChannelUseCase
+import com.ponyo.domain.usecase.GetFeedUseCase
 import com.ponyo.presentation.uistate.ChannelUiState
 import com.ponyo.presentation.uistate.FeedUiState
 import com.ponyo.presentation.uistate.toUiState
@@ -15,7 +17,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
-    private val youtubeRepository: YoutubeRepository,
+    private val getChannelUseCase: GetChannelUseCase,
+    private val getFeedUseCase: GetFeedUseCase
 ) : ViewModel() {
 
     init {
@@ -31,12 +34,11 @@ class MainViewModel @Inject constructor(
 
     private fun fetchChannels() {
         viewModelScope.launch {
-            val netflixResponse = youtubeRepository.getChannelInfo(NETFLIX_CHANNEL_ID)
-            val watchaResponse = youtubeRepository.getChannelInfo(WATCHA_CHANNEL_ID)
+            val response = getChannelUseCase(NETFLIX_CHANNEL_ID, WATCHA_CHANNEL_ID)
             _channelUiState.value =
                 channelUiState.value.copy(
                     isLoading = false,
-                    channelItems = listOf(netflixResponse.toUiState(), watchaResponse.toUiState())
+                    channelItems = response.toUiState()
                 )
         }
 
@@ -44,13 +46,11 @@ class MainViewModel @Inject constructor(
 
     private fun fetchFeeds() {
         viewModelScope.launch {
-            val netflixResponse = youtubeRepository.getVideoItems(NETFLIX_CHANNEL_ID)
-            val watchaResponse = youtubeRepository.getVideoItems(WATCHA_CHANNEL_ID)
+            val response = getFeedUseCase(NETFLIX_CHANNEL_ID, WATCHA_CHANNEL_ID)
             _feedUiState.value =
                 feedUiState.value.copy(
                     isLoading = false,
-                    feedItems = (netflixResponse.items + watchaResponse.items).toUiState()
-                        .sortedByDescending { it.date }
+                    feedItems = response.toUiState()
                 )
         }
     }

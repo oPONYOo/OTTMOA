@@ -10,7 +10,7 @@ data class FeedUiState(
 ) {
     companion object {
         val Uninitialized = FeedUiState(
-            isLoading = false,
+            isLoading = true,
             isError = false,
             feedItems = emptyList()
         )
