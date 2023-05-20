@@ -11,15 +11,16 @@ data class ChannelUiState(
     companion object {
         val Uninitialized =
             ChannelUiState(
-            isLoading = false,
-            isError = false,
-            channelItems = emptyList()
-        )
+                isLoading = true,
+                isError = false,
+                channelItems = emptyList()
+            )
     }
 
 }
 
-
+fun List<YoutubeUserInfoSet>.toUiState(): List<Channel> =
+    map { it.toUiState() }
 
 fun YoutubeUserInfoSet.toUiState(): Channel =
     Channel(
