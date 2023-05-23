@@ -60,6 +60,7 @@ dependencies {
     releaseImplementation("com.github.theGlenn:flipper-android-no-op:0.9.0")
     debugImplementation ("com.facebook.flipper:flipper-network-plugin:0.191.0")
 
+    implementation("com.squareup.okhttp3:okhttp:4.11.0")
 
     implementation(project(":presentation"))
     implementation(project(":domain"))

@@ -57,6 +57,13 @@ dependencies {
     implementation(libs.bundles.lifecycle)
     implementation(libs.hilt.android)
     kapt(libs.hilt.compiler)
+
+    debugImplementation("com.facebook.flipper:flipper:0.191.0")
+    debugImplementation("com.facebook.soloader:soloader:0.10.4")
+    releaseImplementation("com.facebook.flipper:flipper-noop:0.154.0")
+    releaseImplementation("com.github.theGlenn:flipper-android-no-op:0.9.0")
+    debugImplementation ("com.facebook.flipper:flipper-network-plugin:0.191.0")
+
 }
 
 kapt {
