@@ -1,8 +1,9 @@
 package com.ponyo.presentation
 
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
+import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.background
@@ -53,6 +54,11 @@ fun ChannelList(
     viewModel: MainViewModel = viewModel()
 ) {
     val channelUiState by viewModel.channelUiState.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
+    errorMessage?.let {
+        makeToast(LocalContext.current, it)
+    }
+
     LazyRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = modifier
@@ -73,12 +79,20 @@ fun FeedList(
     viewModel: MainViewModel = viewModel()
 ) {
     val feedUiState by viewModel.feedUiState.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState()
+    errorMessage?.let {
+        makeToast(LocalContext.current, it)
+    }
+
     LazyColumn {
         items(feedUiState.feedItems, key = { item -> item.date }) { item ->
             FeedItem(item = item)
         }
     }
 }
+
+private fun makeToast(context: Context, errorMessage: String) =
+    Toast.makeText(context, errorMessage, Toast.LENGTH_SHORT).show()
 
 @Composable
 fun ChannelItem(item: Channel) {

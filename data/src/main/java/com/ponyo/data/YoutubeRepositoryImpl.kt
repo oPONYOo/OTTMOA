@@ -1,5 +1,6 @@
 package com.ponyo.data
 
+import android.util.Log
 import com.ponyo.data.di.ApiService
 import com.ponyo.data.mapper.YoutubeChannelVideosMapper.mapTo
 import com.ponyo.data.mapper.YoutubeUserInfoSetMapper.mapTo
@@ -13,9 +14,22 @@ class YoutubeRepositoryImpl @Inject constructor(
 ) : YoutubeRepository, YoutubeApi by youtubeApi {
 
 
-    override suspend fun getChannelInfo(channelId: String): YoutubeUserInfoSet =
-        youtubeApi.getUserInfo(channelId = channelId).mapTo()
+    override suspend fun getChannelInfo(channelId: String): YoutubeUserInfoSet {
+        val response = runCatching {
+            youtubeApi.getUserInfo(channelId = channelId)
+        }
+        Log.e("YoutubeUserInfoSet", "$response")
+        return response.getOrThrow().mapTo()
+    }
 
-    override suspend fun getVideoItems(channelId: String): YoutubeChannelVideos =
-        youtubeApi.getChannelVideos(channelId = channelId, order = "date").mapTo()
+    override suspend fun getVideoItems(channelId: String): YoutubeChannelVideos {
+        val response = runCatching {
+            youtubeApi.getChannelVideos(
+                channelId = channelId,
+                order = "date"
+            )
+        }
+        Log.e("YoutubeChannelVideos", "$response")
+        return response.getOrThrow().mapTo()
+    }
 }

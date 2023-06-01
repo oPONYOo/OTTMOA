@@ -44,13 +44,15 @@ class NetworkModule {
     private val networkFlipperPlugin = NetworkFlipperPlugin()
     private val flipperOkHttpInterceptor = FlipperOkhttpInterceptor(networkFlipperPlugin)
 
-    private fun provideOkHttpClient(): OkHttpClient =
+    @Provides
+    fun provideOkHttpClient(): OkHttpClient =
         OkHttpClient()
             .newBuilder()
-            .addInterceptor(flipperOkHttpInterceptor)
+            .addNetworkInterceptor(flipperOkHttpInterceptor)
             .build()
 
-    private fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit = Retrofit.Builder()
+    @Provides
+    fun provideRetrofit(okHttpClient: OkHttpClient): Retrofit = Retrofit.Builder()
         .baseUrl("https://www.googleapis.com/youtube/v3/")
         .addConverterFactory(GsonConverterFactory.create())
         .client(okHttpClient)
@@ -60,6 +62,8 @@ class NetworkModule {
     @ApiService
     @Provides
     @Singleton
-    fun provideApi(): YoutubeApi = provideRetrofit(provideOkHttpClient())
+    fun provideApi(
+        retrofit: Retrofit
+    ): YoutubeApi = retrofit
         .create(YoutubeApi::class.java)
 }

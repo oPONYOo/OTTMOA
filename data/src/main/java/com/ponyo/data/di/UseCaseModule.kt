@@ -1,6 +1,6 @@
 package com.ponyo.data.di
 
-import com.ponyo.data.YoutubeRepositoryImpl
+import com.ponyo.domain.YoutubeRepository
 import com.ponyo.domain.usecase.GetChannelUseCase
 import com.ponyo.domain.usecase.GetFeedUseCase
 import dagger.Module
@@ -13,11 +13,11 @@ import dagger.hilt.android.components.ViewModelComponent
 object UseCaseModule {
 
     @Provides
-    fun provideGetChannelUseCase(repository: YoutubeRepositoryImpl): GetChannelUseCase =
+    fun provideGetChannelUseCase(repository: YoutubeRepository): GetChannelUseCase =
         GetChannelUseCase(repository)
 
     @Provides
-    fun provideGetFeedUseCase(repository: YoutubeRepositoryImpl): GetFeedUseCase =
+    fun provideGetFeedUseCase(repository: YoutubeRepository): GetFeedUseCase =
         GetFeedUseCase(repository)
 
 }
