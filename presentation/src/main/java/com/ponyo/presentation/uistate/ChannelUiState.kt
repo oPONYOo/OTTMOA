@@ -25,7 +25,7 @@ fun List<YoutubeUserInfoSet>.toUiState(): List<Channel> =
 fun YoutubeUserInfoSet.toUiState(): Channel =
     Channel(
         thumbnail = items[0].snippet.thumbnails.default.url,
-        channelName = etag,
+        channelName = items[0].snippet.title,
         recentDate = items[0].snippet.publishedAt
     )
 
