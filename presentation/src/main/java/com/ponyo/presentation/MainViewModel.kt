@@ -9,11 +9,13 @@ import com.ponyo.presentation.uistate.ChannelUiState
 import com.ponyo.presentation.uistate.FeedUiState
 import com.ponyo.presentation.uistate.toUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.net.UnknownHostException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,8 +25,8 @@ class MainViewModel @Inject constructor(
 ) : ViewModel() {
 
     init {
-        fetchChannels()
-        fetchFeeds()
+        fetchChannels(NETFLIX_CHANNEL_ID, WATCHA_CHANNEL_ID)
+        fetchFeeds(NETFLIX_CHANNEL_ID, WATCHA_CHANNEL_ID)
     }
 
     private val _channelUiState = MutableStateFlow(ChannelUiState.Uninitialized)
@@ -33,44 +35,49 @@ class MainViewModel @Inject constructor(
     private val _feedUiState = MutableStateFlow(FeedUiState.Uninitialized)
     val feedUiState: StateFlow<FeedUiState> = _feedUiState.asStateFlow()
 
+
+
+    // sharedFlow
     private val _errorMessage: MutableStateFlow<String?> = MutableStateFlow(null)
     val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
 
 
-    private fun fetchChannels() {
-        viewModelScope.launch {
-            try {
-                val response = getChannelUseCase(NETFLIX_CHANNEL_ID, WATCHA_CHANNEL_ID)
-                _channelUiState.update {
-                    channelUiState.value.copy(
-                        isLoading = false,
-                        channelItems = response.toUiState()
-                    )
-                }
+     fun fetchChannels(vararg channelIdList: String) {
 
-            } catch (e: Exception) {
-                Log.e("ChannelException", "$e")
-                when (e) {
-                    is java.net.UnknownHostException -> _errorMessage.update {
-                        e.message
-                    }
+        val handler = CoroutineExceptionHandler { _, t ->
+
+            Log.e("ChannelException", "$t")
+            when (t) {
+                is UnknownHostException -> _errorMessage.update {
+                    t.message
                 }
-                _channelUiState.update {
-                    channelUiState.value.copy(
-                        isLoading = false,
-                        isError = true
-                    )
-                }
+                // error 메세지 세분화
             }
+            _channelUiState.update {
+                channelUiState.value.copy(
+                    isLoading = false,
+                    isError = true
+                )
+            }
+        }
 
+        viewModelScope.launch(handler) {
+            val response = getChannelUseCase(*channelIdList)
+
+            _channelUiState.update {
+                channelUiState.value.copy(
+                    isLoading = false,
+                    channelItems = response.toUiState()
+                )
+            }
         }
 
     }
 
-    private fun fetchFeeds() {
+     fun fetchFeeds(vararg channelIdList: String) {
         viewModelScope.launch {
             try {
-                val response = getFeedUseCase(NETFLIX_CHANNEL_ID, WATCHA_CHANNEL_ID)
+                val response = getFeedUseCase(*channelIdList)
                 _feedUiState.update {
                     feedUiState.value.copy(
                         isLoading = false,
@@ -81,7 +88,7 @@ class MainViewModel @Inject constructor(
             } catch (e: Exception) {
                 Log.e("FeedException", "$e")
                 when (e) {
-                    is java.net.UnknownHostException -> {
+                    is UnknownHostException -> {
                         _errorMessage.update {
                             e.message
                         }

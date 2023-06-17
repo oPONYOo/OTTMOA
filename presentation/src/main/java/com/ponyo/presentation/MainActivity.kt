@@ -111,8 +111,10 @@ fun FeedList(
         makeToast(LocalContext.current, it)
     }
 
+    // viewmodel에서
     val feedItems =
-        if (channelTitle == "ALL") feedUiState.feedItems else feedUiState.feedItems.filter { it.channelTitle == channelTitle }
+        if (channelTitle == "ALL") feedUiState.feedItems
+        else feedUiState.feedItems.filter { it.channelTitle == channelTitle }
 
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
@@ -120,6 +122,7 @@ fun FeedList(
         coroutineScope.launch {
             listState.animateScrollToItem(index = 0)
         }
+
     }
 
 

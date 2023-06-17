@@ -3,10 +3,10 @@ package com.ponyo.domain.usecase
 import com.ponyo.domain.YoutubeRepository
 import com.ponyo.domain.entity.YoutubeUserInfoSet
 
-class GetChannelUseCase (
+open class GetChannelUseCase(
     private val youtubeRepository: YoutubeRepository
 ) {
-    suspend operator fun invoke(vararg channelIdList: String): List<YoutubeUserInfoSet> {
+    open suspend operator fun invoke(vararg channelIdList: String): List<YoutubeUserInfoSet> {
         val list: ArrayList<YoutubeUserInfoSet> = ArrayList(channelIdList.size)
         channelIdList.forEach { channelId ->
             val response = youtubeRepository.getChannelInfo(channelId)
@@ -14,9 +14,6 @@ class GetChannelUseCase (
         }
         return list.toList()
     }
-
-
-
 
 
 }
