@@ -11,6 +11,10 @@ lifecycle = "2.6.1"
 hilt = "2.44"
 activity = "1.7.1"
 compose = "1.4.3"
+testcore = "2.2.0"
+mockito = "2.25.0"
+robolectric = "4.4"
+mockk = "1.13.5"
 
 [libraries]
 androidx-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "ktx" }
@@ -19,20 +23,25 @@ material-material = { group = "com.google.android.material", name = "material", 
 junit-junit = { group = "junit", name = "junit", version.ref = "junit" }
 test-ext = { group = "androidx.test.ext", name = "junit", version.ref = "testext" }
 test-espresso = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "testespresso" }
+androidx-testing = { group = "androidx.arch.core", name = "core-testing", version.ref = "testcore" }
 retrofit2-retrofit = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit" }
 retrofit2-converter = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit" }
 coroutine-android = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-android", version.ref = "coroutine" }
+coroutine-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutine" }
 androidx-viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel-ktx", version.ref = "lifecycle" }
 androidx-livedata = { group = "androidx.lifecycle", name = "lifecycle-livedata-ktx", version.ref = "lifecycle" }
 hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt" }
-activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activity"}
-compose-animation = { group = "androidx.compose.animation", name = "animation", version.ref = "compose"}
-compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "compose"}
-compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "compose"}
-compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "compose"}
-
-
+hilt-testing = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "hilt" }
+activity-ktx = { group = "androidx.activity", name = "activity-ktx", version.ref = "activity" }
+compose-animation = { group = "androidx.compose.animation", name = "animation", version.ref = "compose" }
+compose-foundation = { group = "androidx.compose.foundation", name = "foundation", version.ref = "compose" }
+compose-runtime = { group = "androidx.compose.runtime", name = "runtime", version.ref = "compose" }
+compose-ui = { group = "androidx.compose.ui", name = "ui", version.ref = "compose" }
+mockito-mockito = { group = "org.mockito", name = "mockito-core", version.ref = "mockito" }
+robolectric-robolectric = { group = "org.robolectric", name = "robolectric", version.ref = "robolectric" }
+mockk-mockk = { group = "io.mockk", name = "mockk", version.ref = "mockk" }
+mockk-android = { group = "io.mockk", name = "mockk-android", version.ref = "mockk" }
 
 
 [bundles]
