@@ -21,13 +21,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -37,6 +38,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
+import com.holix.android.bottomsheetdialog.compose.BottomSheetDialog
+import com.holix.android.bottomsheetdialog.compose.BottomSheetDialogProperties
+import com.ponyo.presentation.MainViewModel.Companion.NETFLIX_CHANNEL_ID
+import com.ponyo.presentation.MainViewModel.Companion.WATCHA_CHANNEL_ID
 import com.ponyo.presentation.model.Channel
 import com.ponyo.presentation.model.Feed
 import dagger.hilt.android.AndroidEntryPoint
@@ -51,10 +56,13 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            var channelText by rememberSaveable { mutableStateOf("ALL") }
             Column {
-                ChannelList(viewModel = viewModel, onClick = { channelText = it })
-                FeedList(viewModel = viewModel, channelTitle = channelText)
+                ChannelList(viewModel = viewModel, onClick = { id ->
+                    if (id.isEmpty()) viewModel.fetchFeeds(NETFLIX_CHANNEL_ID, WATCHA_CHANNEL_ID)
+                    else viewModel.fetchFeeds(id)
+
+                })
+                FeedList(viewModel = viewModel)
             }
         }
     }
@@ -67,7 +75,7 @@ fun ChannelList(
     onClick: ((String) -> Unit)? = null
 ) {
     val channelUiState by viewModel.channelUiState.collectAsState()
-    val errorMessage by viewModel.errorMessage.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState(null)
     errorMessage?.let {
         makeToast(LocalContext.current, it)
     }
@@ -75,7 +83,7 @@ fun ChannelList(
     Row {
         ChannelItem(
             modifier = modifier,
-            item = Channel(thumbnail = "", channelName = "ALL", recentDate = ""),
+            item = Channel(thumbnail = "", channelName = "ALL", channelId = "", recentDate = ""),
             onClick = onClick
         )
         Spacer(modifier = modifier.width(8.dp))
@@ -102,23 +110,18 @@ fun ChannelList(
 @Composable
 fun FeedList(
     modifier: Modifier = Modifier,
-    viewModel: MainViewModel = viewModel(),
-    channelTitle: String
+    viewModel: MainViewModel = viewModel()
 ) {
     val feedUiState by viewModel.feedUiState.collectAsState()
-    val errorMessage by viewModel.errorMessage.collectAsState()
+    val errorMessage by viewModel.errorMessage.collectAsState(null)
     errorMessage?.let {
         makeToast(LocalContext.current, it)
     }
 
-    // viewmodel에서
-    val feedItems =
-        if (channelTitle == "ALL") feedUiState.feedItems
-        else feedUiState.feedItems.filter { it.channelTitle == channelTitle }
 
     val listState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
-    LaunchedEffect(key1 = feedItems) {
+    LaunchedEffect(key1 = feedUiState.feedItems) {
         coroutineScope.launch {
             listState.animateScrollToItem(index = 0)
         }
@@ -128,9 +131,12 @@ fun FeedList(
 
     LazyColumn(state = listState) {
         items(
-            feedItems,
+            feedUiState.feedItems,
             key = { item -> item.date }) { item ->
-            FeedItem(modifier = modifier, item = item)
+            FeedItem(
+                modifier = modifier,
+                item = item
+            )
         }
     }
 }
@@ -146,8 +152,8 @@ fun ChannelItem(modifier: Modifier, item: Channel, onClick: ((String) -> Unit)? 
             .clip(CircleShape)
             .background(Color.Red)
             .clickable {
-                if (onClick != null) {
-                    onClick(item.channelName)
+                onClick?.let {
+                    onClick(item.channelId)
                 }
             }
     )
@@ -180,10 +186,19 @@ fun ChannelItem(modifier: Modifier, item: Channel, onClick: ((String) -> Unit)? 
 }
 
 @Composable
-fun FeedItem(modifier: Modifier, item: Feed) {
+fun FeedItem(
+    modifier: Modifier,
+    item: Feed
+) {
+
+    var bottomSheetDialogState by remember {
+        mutableStateOf(false)
+    }
+
     Box(
         modifier = modifier
             .wrapContentSize()
+            .clickable { bottomSheetDialogState = true }
     )
     {
         Surface()
@@ -203,6 +218,51 @@ fun FeedItem(modifier: Modifier, item: Feed) {
 
         }
     }
+
+    if (bottomSheetDialogState) FeedBottomSheet(
+        modifier = modifier,
+        item = item,
+        onDismissRequest = { bottomSheetDialogState = it }
+    )
+}
+
+
+@Composable
+fun FeedBottomSheet(
+    modifier: Modifier,
+    item: Feed,
+    onDismissRequest: (Boolean) -> Unit
+) {
+    BottomSheetDialog(
+        onDismissRequest = {
+            onDismissRequest(false)
+        },
+        properties = BottomSheetDialogProperties(
+            dismissOnBackPress = false,
+            dismissOnClickOutside = true,
+            dismissWithAnimation = true,
+
+
+            )
+
+    ) {
+        // content
+        Surface(
+            modifier = modifier.background(color = Color.White, shape = RectangleShape)
+        ) {
+            Column {
+                Text(text = item.date)
+                Text(text = "링크첨부")
+                Text(text = "링크첨부")
+                Text(text = "링크첨부")
+                Text(text = "링크첨부")
+                Text(text = "링크첨부")
+                Text(text = "링크첨부")
+            }
+
+        }
+    }
+
 }
 
 @Preview
@@ -220,7 +280,8 @@ fun PreviewScreen() {
 
     val channelImg =
         "https://yt3.ggpht.com/SXKyE4XgHJtX4qLS-9FKDuZt9EpBfeFPlGmNQdqsfxW2FDaKOjE53Mb20E43QuQfNDritLK1aw=s88-c-k-c0x00ffffff-no-rj"
-    val channel = Channel(thumbnail = channelImg, channelName = "NETFLIX", recentDate = "1")
+    val channel =
+        Channel(thumbnail = channelImg, channelName = "NETFLIX", channelId = "", recentDate = "1")
     Column {
         ChannelItem(modifier = Modifier, item = channel)
         FeedItem(modifier = Modifier, item = feed)

@@ -60,8 +60,16 @@ data class UserInfoSnippet(
     val publishedAt: String,
     val thumbnails: Thumbnails,
     val title: String
+
 )
 
+data class Statistics(
+    val viewCount: String,
+    val likeCount: String,
+    val dislikeCount: String,
+    val favoriteCount: String,
+    val commentCount: String
+)
 
 data class Localized(
     val description: String,
@@ -78,6 +86,21 @@ data class Thumbnails(
     val high: High,
     val medium: Medium
 )
+
+data class ContentDetails(
+    val duration: String,
+    val dimension: String,
+    val definition: String,
+    val caption: String,
+    val licensedContent: Boolean,
+    val regionRestriction: RegionRestriction
+)
+
+data class RegionRestriction(
+    val allowed: List<String>,
+    val blocked: List<String>
+)
+
 
 data class Default(
     val height: Int,
