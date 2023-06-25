@@ -10,8 +10,11 @@ import com.ponyo.presentation.uistate.FeedUiState
 import com.ponyo.presentation.uistate.toUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -38,8 +41,8 @@ class MainViewModel @Inject constructor(
 
 
     // sharedFlow
-    private val _errorMessage: MutableStateFlow<String?> = MutableStateFlow(null)
-    val errorMessage: StateFlow<String?> = _errorMessage.asStateFlow()
+    private val _errorMessage: MutableSharedFlow<String?> = MutableSharedFlow(0)
+    val errorMessage: SharedFlow<String?> = _errorMessage.asSharedFlow()
 
 
      fun fetchChannels(vararg channelIdList: String) {
@@ -48,9 +51,7 @@ class MainViewModel @Inject constructor(
 
             Log.e("ChannelException", "$t")
             when (t) {
-                is UnknownHostException -> _errorMessage.update {
-                    t.message
-                }
+                is UnknownHostException -> _errorMessage.tryEmit(t.message)
                 // error 메세지 세분화
             }
             _channelUiState.update {
@@ -89,9 +90,7 @@ class MainViewModel @Inject constructor(
                 Log.e("FeedException", "$e")
                 when (e) {
                     is UnknownHostException -> {
-                        _errorMessage.update {
-                            e.message
-                        }
+                        _errorMessage.tryEmit(e.message)
                     }
                 }
                 _feedUiState.update {

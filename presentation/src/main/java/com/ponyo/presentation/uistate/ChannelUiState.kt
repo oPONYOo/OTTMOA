@@ -26,6 +26,7 @@ fun YoutubeUserInfoSet.toUiState(): Channel =
     Channel(
         thumbnail = items[0].snippet.thumbnails.default.url,
         channelName = items[0].snippet.title,
+        channelId = items[0].id,
         recentDate = items[0].snippet.publishedAt
     )
 

@@ -22,4 +22,10 @@ interface YoutubeApi {
         @Query("order") order: String,
         @Query("maxResults") maxResults: Int = 10,
     ): YoutubeChannelVideosResponse
+
+    @GET("videos")
+    suspend fun getVideos(
+        @Query("key") key: String = BuildConfig.KEY,
+        @Query("part") part: String = "contentDetails",
+    )
 }

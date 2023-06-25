@@ -69,6 +69,9 @@ dependencies {
     testImplementation(libs.mockk.mockk)
     androidTestImplementation(libs.mockk.android)
 
+    implementation("com.holix.android:bottomsheetdialog-compose:1.2.1")
+
+
 
     implementation("androidx.compose.material:material-icons-core")
     implementation("androidx.compose.ui:ui-tooling-preview")
