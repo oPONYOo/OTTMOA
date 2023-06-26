@@ -3,6 +3,7 @@ package com.ponyo.presentation
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -14,8 +15,11 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -44,7 +48,9 @@ import com.ponyo.presentation.MainViewModel.Companion.NETFLIX_CHANNEL_ID
 import com.ponyo.presentation.MainViewModel.Companion.WATCHA_CHANNEL_ID
 import com.ponyo.presentation.model.Channel
 import com.ponyo.presentation.model.Feed
+import com.ponyo.presentation.uistate.FeedUiState
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -52,17 +58,46 @@ class MainActivity : AppCompatActivity() {
 
     private val viewModel: MainViewModel by viewModels()
 
+    @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         setContent {
+            val feedUiState by viewModel.feedUiState.collectAsState()
+            val errorMessage by viewModel.errorMessage.collectAsState(null)
+
+            var isRefreshing by remember { mutableStateOf(false) }
+            var nowId by remember { mutableStateOf("") }
+            val pullRefreshState = rememberPullRefreshState(
+                refreshing = isRefreshing,
+                onRefresh = {
+                    Log.e("REFRESH", "REFRESH")
+                    isRefreshing = true
+                    if (nowId.isEmpty()) viewModel.getAllFeedItems()
+                    else viewModel.fetchFeeds(nowId)
+                })
+
+            val pullRefreshModifier = Modifier.pullRefresh(pullRefreshState)
+
             Column {
                 ChannelList(viewModel = viewModel, onClick = { id ->
-                    if (id.isEmpty()) viewModel.fetchFeeds(NETFLIX_CHANNEL_ID, WATCHA_CHANNEL_ID)
+                    nowId = id
+                    if (id.isEmpty()) viewModel.getAllFeedItems()
                     else viewModel.fetchFeeds(id)
 
                 })
-                FeedList(viewModel = viewModel)
+                Box(modifier = pullRefreshModifier, contentAlignment = Alignment.TopCenter) {
+                    FeedList(
+                        modifier = Modifier,
+                        feedUiState = feedUiState,
+                        errorMessage = errorMessage
+                    )
+                }
+            }
+
+            LaunchedEffect(feedUiState.isRefreshing) {
+                isRefreshing = false
+                viewModel.initFeedUiState()
             }
         }
     }
@@ -110,10 +145,9 @@ fun ChannelList(
 @Composable
 fun FeedList(
     modifier: Modifier = Modifier,
-    viewModel: MainViewModel = viewModel()
+    feedUiState: FeedUiState,
+    errorMessage: String?
 ) {
-    val feedUiState by viewModel.feedUiState.collectAsState()
-    val errorMessage by viewModel.errorMessage.collectAsState(null)
     errorMessage?.let {
         makeToast(LocalContext.current, it)
     }

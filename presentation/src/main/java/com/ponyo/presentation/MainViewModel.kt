@@ -39,13 +39,12 @@ class MainViewModel @Inject constructor(
     val feedUiState: StateFlow<FeedUiState> = _feedUiState.asStateFlow()
 
 
-
     // sharedFlow
     private val _errorMessage: MutableSharedFlow<String?> = MutableSharedFlow(0)
     val errorMessage: SharedFlow<String?> = _errorMessage.asSharedFlow()
 
 
-     fun fetchChannels(vararg channelIdList: String) {
+    fun fetchChannels(vararg channelIdList: String) {
 
         val handler = CoroutineExceptionHandler { _, t ->
 
@@ -75,13 +74,15 @@ class MainViewModel @Inject constructor(
 
     }
 
-     fun fetchFeeds(vararg channelIdList: String) {
+    fun fetchFeeds(vararg channelIdList: String) {
+
         viewModelScope.launch {
             try {
                 val response = getFeedUseCase(*channelIdList)
                 _feedUiState.update {
                     feedUiState.value.copy(
                         isLoading = false,
+                        isRefreshing = true,
                         feedItems = response.toUiState()
                     )
                 }
@@ -96,6 +97,7 @@ class MainViewModel @Inject constructor(
                 _feedUiState.update {
                     feedUiState.value.copy(
                         isLoading = false,
+                        isRefreshing = false,
                         isError = true
                     )
                 }
@@ -103,6 +105,15 @@ class MainViewModel @Inject constructor(
 
         }
     }
+
+    fun initFeedUiState() {
+        _feedUiState.update {
+            _feedUiState.value.copy(isRefreshing = false)
+        }
+    }
+
+    fun getAllFeedItems() =
+        fetchFeeds(NETFLIX_CHANNEL_ID, WATCHA_CHANNEL_ID)
 
     companion object {
         const val NETFLIX_CHANNEL_ID = "UCiEEF51uRAeZeCo8CJFhGWw"
