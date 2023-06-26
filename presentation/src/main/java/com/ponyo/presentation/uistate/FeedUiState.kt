@@ -6,12 +6,14 @@ import com.ponyo.presentation.model.Feed
 data class FeedUiState(
     val isLoading: Boolean = false,
     val isError: Boolean = false,
+    val isRefreshing: Boolean = false,
     val feedItems: List<Feed> = emptyList()
 ) {
     companion object {
         val Uninitialized = FeedUiState(
             isLoading = true,
             isError = false,
+            isRefreshing = false,
             feedItems = emptyList()
         )
     }
