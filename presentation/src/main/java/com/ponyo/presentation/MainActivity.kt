@@ -7,6 +7,12 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -18,7 +24,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.pullrefresh.PullRefreshState
 import androidx.compose.material.pullrefresh.pullRefresh
+import androidx.compose.material.pullrefresh.pullRefreshIndicatorTransform
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -31,12 +39,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PaintingStyle.Companion.Stroke
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.graphics.drawscope.Fill
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -44,13 +59,10 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.holix.android.bottomsheetdialog.compose.BottomSheetDialog
 import com.holix.android.bottomsheetdialog.compose.BottomSheetDialogProperties
-import com.ponyo.presentation.MainViewModel.Companion.NETFLIX_CHANNEL_ID
-import com.ponyo.presentation.MainViewModel.Companion.WATCHA_CHANNEL_ID
 import com.ponyo.presentation.model.Channel
 import com.ponyo.presentation.model.Feed
 import com.ponyo.presentation.uistate.FeedUiState
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
@@ -92,6 +104,7 @@ class MainActivity : AppCompatActivity() {
                         feedUiState = feedUiState,
                         errorMessage = errorMessage
                     )
+                    Indicator(refreshing = isRefreshing, state = pullRefreshState)
                 }
             }
 
@@ -298,6 +311,49 @@ fun FeedBottomSheet(
     }
 
 }
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+private fun Indicator(
+    modifier: Modifier = Modifier,
+    state: PullRefreshState,
+    refreshing: Boolean
+) {
+    val indicatorSize = 40.dp
+
+    Surface(
+        modifier = modifier
+            .size(indicatorSize)
+            .pullRefreshIndicatorTransform(state, true),
+        shape = CircleShape,
+        elevation = if (refreshing) 16.dp else 0.dp
+    ) {
+        if (refreshing) {
+            val transition = rememberInfiniteTransition()
+            val degree by transition.animateFloat(
+                initialValue = 0f, targetValue = 360f, animationSpec = infiniteRepeatable(
+                    animation = tween(
+                        durationMillis = 1000,
+                        easing = LinearEasing
+                    )
+                )
+            )
+            Ball(modifier = Modifier.rotate(degree), indicatorSize)
+        } else {
+            Ball(modifier = Modifier.rotate(state.progress * 180), indicatorSize)
+        }
+    }
+}
+
+// TODO: 그라데이션 인디케이터 구헌하기
+@Composable
+private fun Ball(modifier: Modifier = Modifier, size: Dp) {
+    Canvas(modifier = modifier) {
+        val strokeWidth = (size / 10).toPx()
+        drawCircle(color = Color.Black, style = Stroke(strokeWidth))
+    }
+}
+
 
 @Preview
 @Composable
