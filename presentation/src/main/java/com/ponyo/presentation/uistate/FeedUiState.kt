@@ -24,6 +24,7 @@ fun List<YoutubeChannelVideo>.toUiState(): List<Feed> =
 
 fun YoutubeChannelVideo.toUiState(): Feed =
     Feed(
+        videoId = id.videoId,
         channelTitle = snippet.channelTitle,
         thumbnail = snippet.thumbnails.high.url,
         date = snippet.publishedAt,

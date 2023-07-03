@@ -65,6 +65,10 @@ dependencies {
     androidTestImplementation(libs.hilt.testing)
     testImplementation(libs.mockito.mockito)
     testImplementation(libs.robolectric.robolectric)
+    implementation(libs.room.runtime)
+    kapt(libs.room.compiler)
+    implementation(libs.room.ktx)
+    androidTestImplementation(libs.room.testing)
 
 
     debugImplementation("com.facebook.flipper:flipper:0.191.0")

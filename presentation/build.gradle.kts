@@ -68,6 +68,10 @@ dependencies {
     testImplementation(libs.coroutine.test)
     testImplementation(libs.mockk.mockk)
     androidTestImplementation(libs.mockk.android)
+    implementation(libs.room.runtime)
+    kapt(libs.room.compiler)
+    implementation(libs.room.ktx)
+    androidTestImplementation(libs.room.testing)
 
     implementation("com.holix.android:bottomsheetdialog-compose:1.2.1")
 

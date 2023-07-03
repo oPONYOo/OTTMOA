@@ -1,8 +1,11 @@
 package com.ponyo.data.di
 
+import com.ponyo.domain.LocalInfoRepository
 import com.ponyo.domain.YoutubeRepository
 import com.ponyo.domain.usecase.GetChannelUseCase
 import com.ponyo.domain.usecase.GetFeedUseCase
+import com.ponyo.domain.usecase.GetLocalInfoUseCase
+import com.ponyo.domain.usecase.InsertLocalInfoUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -19,5 +22,13 @@ object UseCaseModule {
     @Provides
     fun provideGetFeedUseCase(repository: YoutubeRepository): GetFeedUseCase =
         GetFeedUseCase(repository)
+
+    @Provides
+    fun provideGetLocalInfoList(repository: LocalInfoRepository): GetLocalInfoUseCase =
+        GetLocalInfoUseCase(repository)
+
+    @Provides
+    fun provideInsertLocalInfo(repository: LocalInfoRepository): InsertLocalInfoUseCase =
+        InsertLocalInfoUseCase(repository)
 
 }
