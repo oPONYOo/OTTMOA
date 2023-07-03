@@ -32,6 +32,7 @@ class MainViewModel @Inject constructor(
         fetchFeeds(NETFLIX_CHANNEL_ID, WATCHA_CHANNEL_ID)
     }
 
+    //
     private val _channelUiState = MutableStateFlow(ChannelUiState.Uninitialized)
     val channelUiState: StateFlow<ChannelUiState> = _channelUiState.asStateFlow()
 
