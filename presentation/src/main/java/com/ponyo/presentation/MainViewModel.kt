@@ -39,7 +39,6 @@ class MainViewModel @Inject constructor(
     val feedUiState: StateFlow<FeedUiState> = _feedUiState.asStateFlow()
 
 
-    // sharedFlow
     private val _errorMessage: MutableSharedFlow<String?> = MutableSharedFlow(0)
     val errorMessage: SharedFlow<String?> = _errorMessage.asSharedFlow()
 
