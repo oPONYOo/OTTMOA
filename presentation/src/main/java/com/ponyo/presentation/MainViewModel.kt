@@ -3,19 +3,24 @@ package com.ponyo.presentation
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.ponyo.domain.entity.LocalInfo
 import com.ponyo.domain.usecase.GetChannelUseCase
 import com.ponyo.domain.usecase.GetFeedUseCase
+import com.ponyo.domain.usecase.GetLocalInfoUseCase
+import com.ponyo.domain.usecase.InsertLocalInfoUseCase
 import com.ponyo.presentation.uistate.ChannelUiState
 import com.ponyo.presentation.uistate.FeedUiState
 import com.ponyo.presentation.uistate.toUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.net.UnknownHostException
@@ -24,12 +29,15 @@ import javax.inject.Inject
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val getChannelUseCase: GetChannelUseCase,
-    private val getFeedUseCase: GetFeedUseCase
+    private val getFeedUseCase: GetFeedUseCase,
+    private val getLocalInfoUseCase: GetLocalInfoUseCase,
+    private val insertLocalInfoUseCase: InsertLocalInfoUseCase
 ) : ViewModel() {
 
     init {
         fetchChannels(NETFLIX_CHANNEL_ID, WATCHA_CHANNEL_ID)
         fetchFeeds(NETFLIX_CHANNEL_ID, WATCHA_CHANNEL_ID)
+//        getLocalInfoList()
     }
 
     //
@@ -38,6 +46,9 @@ class MainViewModel @Inject constructor(
 
     private val _feedUiState = MutableStateFlow(FeedUiState.Uninitialized)
     val feedUiState: StateFlow<FeedUiState> = _feedUiState.asStateFlow()
+
+    private val _localInfoUiState: MutableStateFlow<List<LocalInfo>> = MutableStateFlow(emptyList())
+    val localInfoUiState: StateFlow<List<LocalInfo>> = _localInfoUiState.asStateFlow()
 
 
     private val _errorMessage: MutableSharedFlow<String?> = MutableSharedFlow(0)
@@ -104,6 +115,21 @@ class MainViewModel @Inject constructor(
             }
 
         }
+    }
+
+    fun getLocalInfoList() {
+        _localInfoUiState.value =
+            getLocalInfoUseCase.localInfoList
+    }
+
+
+
+    fun insertRecord(localInfo: LocalInfo) =
+        insertLocalInfoUseCase(localInfo)
+
+
+    fun deleteRecord(localInfo: LocalInfo) {
+
     }
 
     fun initFeedUiState() {

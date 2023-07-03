@@ -72,6 +72,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.holix.android.bottomsheetdialog.compose.BottomSheetDialog
 import com.holix.android.bottomsheetdialog.compose.BottomSheetDialogProperties
+import com.ponyo.domain.entity.LocalInfo
 import com.ponyo.presentation.model.Channel
 import com.ponyo.presentation.model.Feed
 import com.ponyo.presentation.uistate.FeedUiState
@@ -116,7 +117,13 @@ class MainActivity : AppCompatActivity() {
                     FeedList(
                         modifier = Modifier,
                         feedUiState = feedUiState,
-                        errorMessage = errorMessage
+                        errorMessage = errorMessage,
+                        onClick = { localInfo ->
+                            Log.e("INFOOO", "$localInfo")
+                            viewModel.insertRecord(localInfo)
+                            viewModel.getLocalInfoList()
+                            Log.e("LOCALLLL", "${viewModel.localInfoUiState.value}")
+                        }
                     )
                     Indicator(refreshing = isRefreshing, state = pullRefreshState)
                 }
@@ -173,7 +180,8 @@ fun ChannelList(
 fun FeedList(
     modifier: Modifier = Modifier,
     feedUiState: FeedUiState,
-    errorMessage: String?
+    errorMessage: String?,
+    onClick: ((LocalInfo) -> Unit)
 ) {
     errorMessage?.let {
         makeToast(LocalContext.current, it)
@@ -193,10 +201,11 @@ fun FeedList(
     LazyColumn(state = listState) {
         items(
             feedUiState.feedItems,
-            key = { item -> item.date }) { item ->
+            key = { item -> item.videoId }) { item ->
             FeedItem(
                 modifier = modifier,
-                item = item
+                item = item,
+                onClick = onClick
             )
         }
     }
@@ -249,7 +258,8 @@ fun ChannelItem(modifier: Modifier, item: Channel, onClick: ((String) -> Unit)? 
 @Composable
 fun FeedItem(
     modifier: Modifier,
-    item: Feed
+    item: Feed,
+    onClick: ((LocalInfo) -> Unit)
 ) {
 
     var bottomSheetDialogState by remember {
@@ -283,7 +293,8 @@ fun FeedItem(
     if (bottomSheetDialogState) FeedBottomSheet(
         modifier = modifier,
         item = item,
-        onDismissRequest = { bottomSheetDialogState = it }
+        onDismissRequest = { bottomSheetDialogState = it },
+        onClick = onClick
     )
 }
 
@@ -292,7 +303,8 @@ fun FeedItem(
 fun FeedBottomSheet(
     modifier: Modifier,
     item: Feed,
-    onDismissRequest: (Boolean) -> Unit
+    onDismissRequest: (Boolean) -> Unit,
+    onClick: ((LocalInfo) -> Unit)
 ) {
     BottomSheetDialog(
         onDismissRequest = {
@@ -311,7 +323,7 @@ fun FeedBottomSheet(
         Surface(
             modifier = modifier.background(color = Color.White, shape = RectangleShape)
         ) {
-            MemoLayout(modifier = modifier)
+            MemoLayout(modifier = modifier, feed = item, onClick)
         }
     }
 
@@ -319,7 +331,7 @@ fun FeedBottomSheet(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun MemoLayout(modifier: Modifier) {
+fun MemoLayout(modifier: Modifier, feed: Feed, onClick: ((LocalInfo) -> Unit)) {
     BackdropScaffold(
         modifier = modifier,
         scaffoldState = rememberBackdropScaffoldState(BackdropValue.Revealed),
@@ -352,14 +364,14 @@ fun MemoLayout(modifier: Modifier) {
 
         },
         frontLayerContent = {
-            EditMemoLayout(modifier)
+            EditMemoLayout(modifier, feed, onClick)
         }
     )
 }
 
 
 @Composable
-fun EditMemoLayout(modifier: Modifier) {
+fun EditMemoLayout(modifier: Modifier, feed: Feed, onClick: (LocalInfo) -> Unit) {
     var memoTxt by remember { mutableStateOf("") }
     Column(modifier.padding(start = 10.dp)) {
         Row(
@@ -370,11 +382,15 @@ fun EditMemoLayout(modifier: Modifier) {
             Spacer(modifier = modifier.width(70.dp))
             Button(
                 onClick = {
-                    /*val memoEntity = MemoDB(mainTxt = titleTxt, subTxt = subTxt, check = false)
-                    viewModel.insertRecord(todoEntity)
 
-                    titleTxt = ""
-                    subTxt = ""*/
+                    val localInfo = LocalInfo(
+                        id = feed.videoId,
+                        starRate = 1,
+                        memoTxt = memoTxt,
+                        thumbnail = feed.thumbnail
+                    )
+                    onClick(localInfo)
+                    memoTxt = ""
                 },
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = Color.DarkGray,
@@ -432,21 +448,33 @@ fun StarRate(modifier: Modifier) {
     )
     LazyRow {
         items(starRateList, key = { star -> star.id }) { star ->
-            StarButtonContent(modifier)
+            StarButtonContent(modifier, true)
         }
     }
 }
 
 @Composable
-fun StarButtonContent(modifier: Modifier) {
-    Icon(
-        painter = painterResource(id = R.drawable.baseline_star_border_24),
-        contentDescription = "빈 별",
-        modifier
-            .clickable { }
-            .padding(start = 10.dp),
-        tint = Color.LightGray,
-    )
+fun StarButtonContent(modifier: Modifier, isGood: Boolean) {
+    if (isGood) {
+        Icon(
+            painter = painterResource(id = R.drawable.outline_star_24),
+            contentDescription = "꽉찬 별",
+            modifier
+                .clickable { }
+                .padding(start = 10.dp),
+            tint = Color.Gray,
+        )
+    } else {
+        Icon(
+            painter = painterResource(id = R.drawable.baseline_star_border_24),
+            contentDescription = "빈 별",
+            modifier
+                .clickable { }
+                .padding(start = 10.dp),
+            tint = Color.LightGray,
+        )
+    }
+
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -498,6 +526,7 @@ fun PreviewScreen() {
     val feedImg =
         "https://i.ytimg.com/vi/MvpahYjX8WE/hqdefault.jpg"
     val feed = Feed(
+        videoId = "",
         thumbnail = feedImg,
         date = "00",
         description = "이 영상은 어쩌고",
@@ -511,6 +540,6 @@ fun PreviewScreen() {
         Channel(thumbnail = channelImg, channelName = "NETFLIX", channelId = "", recentDate = "1")
     Column {
         ChannelItem(modifier = Modifier, item = channel)
-        FeedItem(modifier = Modifier, item = feed)
+        FeedItem(modifier = Modifier, item = feed, onClick = {})
     }
 }
