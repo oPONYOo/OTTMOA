@@ -21,13 +21,24 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.BackdropScaffold
+import androidx.compose.material.BackdropValue
+import androidx.compose.material.Button
+import androidx.compose.material.ButtonColors
+import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.material.pullrefresh.PullRefreshState
 import androidx.compose.material.pullrefresh.pullRefresh
 import androidx.compose.material.pullrefresh.pullRefreshIndicatorTransform
 import androidx.compose.material.pullrefresh.rememberPullRefreshState
+import androidx.compose.material.rememberBackdropScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -48,6 +59,8 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -62,6 +75,7 @@ import com.holix.android.bottomsheetdialog.compose.BottomSheetDialogProperties
 import com.ponyo.presentation.model.Channel
 import com.ponyo.presentation.model.Feed
 import com.ponyo.presentation.uistate.FeedUiState
+import com.ponyo.presentation.uistate.StarRate
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -297,19 +311,142 @@ fun FeedBottomSheet(
         Surface(
             modifier = modifier.background(color = Color.White, shape = RectangleShape)
         ) {
-            Column {
-                Text(text = item.date)
-                Text(text = "링크첨부")
-                Text(text = "링크첨부")
-                Text(text = "링크첨부")
-                Text(text = "링크첨부")
-                Text(text = "링크첨부")
-                Text(text = "링크첨부")
-            }
-
+            MemoLayout(modifier = modifier)
         }
     }
 
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+@Composable
+fun MemoLayout(modifier: Modifier) {
+    BackdropScaffold(
+        modifier = modifier,
+        scaffoldState = rememberBackdropScaffoldState(BackdropValue.Revealed),
+        frontLayerScrimColor = Color.Unspecified,
+        backLayerBackgroundColor = Color.Unspecified,
+        frontLayerElevation = 8.dp,
+        appBar = { },
+        persistentAppBar = false,
+        headerHeight = 120.dp,
+        backLayerContent = {
+            /*if (items.isEmpty()) {
+                EmptyScreen()
+            } else {
+                Column {
+                    AnimationGaugeBar(checkNum, Color.DarkGray, items)
+                    LazyColumn(
+                        modifier = Modifier
+                            .padding(vertical = 4.dp)
+                            .systemBarsPadding()
+                    ) {
+                        items(items, key = { task -> task.id }) { task ->
+                            TodoList(task)
+                        }
+
+                    }
+                }
+
+            }*/
+
+
+        },
+        frontLayerContent = {
+            EditMemoLayout(modifier)
+        }
+    )
+}
+
+
+@Composable
+fun EditMemoLayout(modifier: Modifier) {
+    var memoTxt by remember { mutableStateOf("") }
+    Column(modifier.padding(start = 10.dp)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // 평점
+            StarRate(modifier)
+            Spacer(modifier = modifier.width(70.dp))
+            Button(
+                onClick = {
+                    /*val memoEntity = MemoDB(mainTxt = titleTxt, subTxt = subTxt, check = false)
+                    viewModel.insertRecord(todoEntity)
+
+                    titleTxt = ""
+                    subTxt = ""*/
+                },
+                colors = ButtonDefaults.buttonColors(
+                    backgroundColor = Color.DarkGray,
+                    contentColor = Color.White
+                )
+            ) {
+                Text("저장", fontFamily = FontFamily.Monospace)
+            }
+
+        }
+        Divider(
+            modifier = Modifier
+                .height(0.5.dp),
+            color = Color.LightGray
+        )
+        Row {
+
+            TextField(
+                value = memoTxt,
+                onValueChange = { textValue -> memoTxt = textValue },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(),
+                textStyle = MaterialTheme.typography.body1,
+                placeholder = {
+                    Text(
+                        text = "컨텐츠에 대한 메모를 남겨보세요",
+                        style = MaterialTheme.typography.body1,
+                        fontWeight = FontWeight.ExtraBold,
+                        color = Color.LightGray
+                    )
+                },
+                colors = TextFieldDefaults.textFieldColors(
+                    cursorColor = Color.LightGray,
+                    backgroundColor = Color.Transparent,
+                    focusedIndicatorColor = Color.Transparent,
+                    unfocusedIndicatorColor = Color.Transparent
+                ),
+
+                )
+        }
+    }
+
+
+}
+
+@Composable
+fun StarRate(modifier: Modifier) {
+    val starRateList = listOf(
+        StarRate(1),
+        StarRate(2),
+        StarRate(3),
+        StarRate(4),
+        StarRate(5)
+    )
+    LazyRow {
+        items(starRateList, key = { star -> star.id }) { star ->
+            StarButtonContent(modifier)
+        }
+    }
+}
+
+@Composable
+fun StarButtonContent(modifier: Modifier) {
+    Icon(
+        painter = painterResource(id = R.drawable.baseline_star_border_24),
+        contentDescription = "빈 별",
+        modifier
+            .clickable { }
+            .padding(start = 10.dp),
+        tint = Color.LightGray,
+    )
 }
 
 @OptIn(ExperimentalMaterialApi::class)
