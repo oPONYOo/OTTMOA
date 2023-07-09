@@ -29,5 +29,5 @@ fun YoutubeChannelVideo.toUiState(): Feed =
         thumbnail = snippet.thumbnails.high.url,
         date = snippet.publishedAt,
         description = snippet.description,
-        bookMarked = false
+        bookMarked = false,
     )

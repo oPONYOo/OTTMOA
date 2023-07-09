@@ -91,6 +91,7 @@ class MainActivity : AppCompatActivity() {
 
         setContent {
             val feedUiState by viewModel.feedUiState.collectAsState()
+            val localInfo by viewModel.localInfoUiState.collectAsState()
             val errorMessage by viewModel.errorMessage.collectAsState(null)
 
             var isRefreshing by remember { mutableStateOf(false) }
@@ -117,6 +118,7 @@ class MainActivity : AppCompatActivity() {
                     FeedList(
                         modifier = Modifier,
                         feedUiState = feedUiState,
+                        localInfo = localInfo,
                         errorMessage = errorMessage,
                         onClick = { localInfo ->
                             Log.e("INFOOO", "$localInfo")
@@ -180,6 +182,7 @@ fun ChannelList(
 fun FeedList(
     modifier: Modifier = Modifier,
     feedUiState: FeedUiState,
+    localInfo: List<LocalInfo>,
     errorMessage: String?,
     onClick: ((LocalInfo) -> Unit)
 ) {
@@ -196,11 +199,24 @@ fun FeedList(
         }
 
     }
+    val items = feedUiState.feedItems.map { feed ->
+        Feed(
+            videoId = feed.videoId,
+            channelTitle = feed.channelTitle,
+            thumbnail = feed.thumbnail,
+            date = feed.date,
+            description = feed.description,
+            bookMarked = false,
+            starRate = localInfo.firstOrNull { feed.videoId == it.id }?.starRate,
+            memoTxt = localInfo.firstOrNull { feed.videoId == it.id }?.memoTxt
+
+        )
+    }
 
 
     LazyColumn(state = listState) {
         items(
-            feedUiState.feedItems,
+            items,
             key = { item -> item.videoId }) { item ->
             FeedItem(
                 modifier = modifier,
@@ -342,6 +358,10 @@ fun MemoLayout(modifier: Modifier, feed: Feed, onClick: ((LocalInfo) -> Unit)) {
         persistentAppBar = false,
         headerHeight = 120.dp,
         backLayerContent = {
+            feed.memoTxt?.let {
+                Log.e("memoooo", it)
+                Memo(modifier = modifier, memoTxt = it, starRate = feed.starRate!!)
+            }
             /*if (items.isEmpty()) {
                 EmptyScreen()
             } else {
@@ -367,6 +387,29 @@ fun MemoLayout(modifier: Modifier, feed: Feed, onClick: ((LocalInfo) -> Unit)) {
             EditMemoLayout(modifier, feed, onClick)
         }
     )
+}
+
+@Composable
+fun Memo(modifier: Modifier, starRate: Int, memoTxt: String) {
+    Column(modifier.padding(start = 10.dp)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            // 평점
+            StarRate(modifier)
+        }
+        Divider(
+            modifier = Modifier
+                .height(0.5.dp),
+            color = Color.LightGray
+        )
+        Text(
+            text = memoTxt,
+            style = MaterialTheme.typography.body1,
+            fontWeight = FontWeight.Light,
+            color = Color.Black
+        )
+    }
 }
 
 
@@ -397,7 +440,9 @@ fun EditMemoLayout(modifier: Modifier, feed: Feed, onClick: (LocalInfo) -> Unit)
                     contentColor = Color.White
                 )
             ) {
-                Text("저장", fontFamily = FontFamily.Monospace)
+                feed.memoTxt?.let {
+                    Text("수정", fontFamily = FontFamily.Monospace)
+                } ?: Text("저장", fontFamily = FontFamily.Monospace)
             }
 
         }

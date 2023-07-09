@@ -4,7 +4,7 @@ import com.ponyo.domain.entity.LocalInfo
 
 
 interface LocalInfoRepository {
-    val infoThings: List<LocalInfo>
+    fun getInfoTings(): List<LocalInfo>
 
     fun insertRecords(localInfo: LocalInfo)
 

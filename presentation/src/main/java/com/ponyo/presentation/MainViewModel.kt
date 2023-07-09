@@ -118,8 +118,10 @@ class MainViewModel @Inject constructor(
     }
 
     fun getLocalInfoList() {
-        _localInfoUiState.value =
-            getLocalInfoUseCase.localInfoList
+        viewModelScope.launch {
+            _localInfoUiState.value = getLocalInfoUseCase.invoke()
+
+        }
     }
 
 

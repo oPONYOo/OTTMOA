@@ -10,9 +10,8 @@ import javax.inject.Inject
 class LocalInfoRepositoryImpl @Inject constructor(
     private val infoDao: InfoDao
 ) : LocalInfoRepository {
-
-    override val infoThings: List<LocalInfo> = infoDao.getRecords().toLocalInfoList()
-
+    override fun getInfoTings(): List<LocalInfo> =
+        infoDao.getRecords().toLocalInfoList()
 
     override fun insertRecords(localInfo: LocalInfo) =
         infoDao.insertRecords(localInfo.toDB())
