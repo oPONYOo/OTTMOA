@@ -14,7 +14,7 @@ data class DB(
 )
 
 
-fun List<DB>.toLocalInfoList(): List<LocalInfo> =
+internal fun List<DB>.toLocalInfoList(): List<LocalInfo> =
     map {
         it.toLocalInfo()
     }
@@ -27,10 +27,12 @@ fun DB.toLocalInfo(): LocalInfo =
         thumbnail = thumbnail
     )
 
-fun LocalInfo.toDB(): DB =
+internal fun LocalInfo.toDB(): DB =
     DB(
         id = id,
         starRate = starRate,
         memoTxt = memoTxt,
         thumbnail = thumbnail
     )
+
+// 다대다 일 경우 인터페이스화

@@ -6,7 +6,6 @@ import com.ponyo.domain.entity.LocalInfo
 class GetLocalInfoUseCase(
     private val localInfoRepository: LocalInfoRepository
 ) {
-
-    val localInfoList: List<LocalInfo> = localInfoRepository.infoThings
+     suspend operator fun invoke(): List<LocalInfo> = localInfoRepository.getInfoTings()
 
 }

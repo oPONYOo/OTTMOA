@@ -6,5 +6,7 @@ data class Feed(
     val thumbnail: String,
     val date: String,
     val description: String? = null,
-    val bookMarked: Boolean
+    val bookMarked: Boolean,
+    val starRate: Int? = null,
+    val memoTxt: String? = null,
 )
