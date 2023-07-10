@@ -76,6 +76,7 @@ import com.ponyo.domain.entity.LocalInfo
 import com.ponyo.presentation.model.Channel
 import com.ponyo.presentation.model.Feed
 import com.ponyo.presentation.uistate.FeedUiState
+import com.ponyo.presentation.uistate.LocalInfoUiState
 import com.ponyo.presentation.uistate.StarRate
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -89,9 +90,11 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        viewModel.getLocalInfoList()
+
         setContent {
             val feedUiState by viewModel.feedUiState.collectAsState()
-            val localInfo by viewModel.localInfoUiState.collectAsState()
+            val localInfoUiState by viewModel.localInfoUiState.collectAsState()
             val errorMessage by viewModel.errorMessage.collectAsState(null)
 
             var isRefreshing by remember { mutableStateOf(false) }
@@ -101,6 +104,7 @@ class MainActivity : AppCompatActivity() {
                 onRefresh = {
                     Log.e("REFRESH", "REFRESH")
                     isRefreshing = true
+                    viewModel.getLocalInfoList()
                     if (nowId.isEmpty()) viewModel.getAllFeedItems()
                     else viewModel.fetchFeeds(nowId)
                 })
@@ -118,13 +122,13 @@ class MainActivity : AppCompatActivity() {
                     FeedList(
                         modifier = Modifier,
                         feedUiState = feedUiState,
-                        localInfo = localInfo,
+                        localInfoUiState = localInfoUiState,
                         errorMessage = errorMessage,
-                        onClick = { localInfo ->
+                        onClick = { localInfo, first ->
                             Log.e("INFOOO", "$localInfo")
-                            viewModel.insertRecord(localInfo)
-                            viewModel.getLocalInfoList()
-                            Log.e("LOCALLLL", "${viewModel.localInfoUiState.value}")
+                            Log.e("isFIRST", "$first")
+                            if (first) viewModel.insertRecord(localInfo)
+                            else viewModel.updateRecord(localInfo)
                         }
                     )
                     Indicator(refreshing = isRefreshing, state = pullRefreshState)
@@ -182,23 +186,16 @@ fun ChannelList(
 fun FeedList(
     modifier: Modifier = Modifier,
     feedUiState: FeedUiState,
-    localInfo: List<LocalInfo>,
+    localInfoUiState: LocalInfoUiState,
     errorMessage: String?,
-    onClick: ((LocalInfo) -> Unit)
+    onClick: ((LocalInfo, Boolean) -> Unit)
 ) {
     errorMessage?.let {
         makeToast(LocalContext.current, it)
     }
 
+    Log.e("LOCALLLLLLLL", "$localInfoUiState")
 
-    val listState = rememberLazyListState()
-    val coroutineScope = rememberCoroutineScope()
-    LaunchedEffect(key1 = feedUiState.feedItems) {
-        coroutineScope.launch {
-            listState.animateScrollToItem(index = 0)
-        }
-
-    }
     val items = feedUiState.feedItems.map { feed ->
         Feed(
             videoId = feed.videoId,
@@ -207,12 +204,20 @@ fun FeedList(
             date = feed.date,
             description = feed.description,
             bookMarked = false,
-            starRate = localInfo.firstOrNull { feed.videoId == it.id }?.starRate,
-            memoTxt = localInfo.firstOrNull { feed.videoId == it.id }?.memoTxt
+            starRate = localInfoUiState.localInfoList.firstOrNull { feed.videoId == it.id }?.starRate,
+            memoTxt = localInfoUiState.localInfoList.firstOrNull { feed.videoId == it.id }?.memoTxt
 
         )
     }
 
+    val listState = rememberLazyListState()
+    val coroutineScope = rememberCoroutineScope()
+    LaunchedEffect(key1 = items) {
+        coroutineScope.launch {
+            listState.animateScrollToItem(index = 0)
+        }
+
+    }
 
     LazyColumn(state = listState) {
         items(
@@ -275,7 +280,7 @@ fun ChannelItem(modifier: Modifier, item: Channel, onClick: ((String) -> Unit)? 
 fun FeedItem(
     modifier: Modifier,
     item: Feed,
-    onClick: ((LocalInfo) -> Unit)
+    onClick: ((LocalInfo, Boolean) -> Unit)
 ) {
 
     var bottomSheetDialogState by remember {
@@ -320,7 +325,7 @@ fun FeedBottomSheet(
     modifier: Modifier,
     item: Feed,
     onDismissRequest: (Boolean) -> Unit,
-    onClick: ((LocalInfo) -> Unit)
+    onClick: ((LocalInfo, Boolean) -> Unit)
 ) {
     BottomSheetDialog(
         onDismissRequest = {
@@ -347,7 +352,7 @@ fun FeedBottomSheet(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun MemoLayout(modifier: Modifier, feed: Feed, onClick: ((LocalInfo) -> Unit)) {
+fun MemoLayout(modifier: Modifier, feed: Feed, onClick: ((LocalInfo, Boolean) -> Unit)) {
     BackdropScaffold(
         modifier = modifier,
         scaffoldState = rememberBackdropScaffoldState(BackdropValue.Revealed),
@@ -356,7 +361,7 @@ fun MemoLayout(modifier: Modifier, feed: Feed, onClick: ((LocalInfo) -> Unit)) {
         frontLayerElevation = 8.dp,
         appBar = { },
         persistentAppBar = false,
-        headerHeight = 120.dp,
+        headerHeight = 200.dp,
         backLayerContent = {
             feed.memoTxt?.let {
                 Log.e("memoooo", it)
@@ -414,7 +419,7 @@ fun Memo(modifier: Modifier, starRate: Int, memoTxt: String) {
 
 
 @Composable
-fun EditMemoLayout(modifier: Modifier, feed: Feed, onClick: (LocalInfo) -> Unit) {
+fun EditMemoLayout(modifier: Modifier, feed: Feed, onClick: (LocalInfo, Boolean) -> Unit) {
     var memoTxt by remember { mutableStateOf("") }
     Column(modifier.padding(start = 10.dp)) {
         Row(
@@ -432,7 +437,7 @@ fun EditMemoLayout(modifier: Modifier, feed: Feed, onClick: (LocalInfo) -> Unit)
                         memoTxt = memoTxt,
                         thumbnail = feed.thumbnail
                     )
-                    onClick(localInfo)
+                    onClick(localInfo, feed.memoTxt.isNullOrBlank())
                     memoTxt = ""
                 },
                 colors = ButtonDefaults.buttonColors(
@@ -585,6 +590,6 @@ fun PreviewScreen() {
         Channel(thumbnail = channelImg, channelName = "NETFLIX", channelId = "", recentDate = "1")
     Column {
         ChannelItem(modifier = Modifier, item = channel)
-        FeedItem(modifier = Modifier, item = feed, onClick = {})
+//        FeedItem(modifier = Modifier, item = feed, onClick = {})
     }
 }

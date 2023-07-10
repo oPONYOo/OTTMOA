@@ -6,6 +6,7 @@ import com.ponyo.domain.usecase.GetChannelUseCase
 import com.ponyo.domain.usecase.GetFeedUseCase
 import com.ponyo.domain.usecase.GetLocalInfoUseCase
 import com.ponyo.domain.usecase.InsertLocalInfoUseCase
+import com.ponyo.domain.usecase.UpdateLocalInfoUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -30,5 +31,9 @@ object UseCaseModule {
     @Provides
     fun provideInsertLocalInfo(repository: LocalInfoRepository): InsertLocalInfoUseCase =
         InsertLocalInfoUseCase(repository)
+
+    @Provides
+    fun provideUpdateLocalInfo(repository: LocalInfoRepository): UpdateLocalInfoUseCase =
+        UpdateLocalInfoUseCase(repository)
 
 }

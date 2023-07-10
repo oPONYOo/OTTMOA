@@ -10,16 +10,23 @@ import javax.inject.Inject
 class LocalInfoRepositoryImpl @Inject constructor(
     private val infoDao: InfoDao
 ) : LocalInfoRepository {
-    override fun getInfoTings(): List<LocalInfo> =
-        infoDao.getRecords().toLocalInfoList()
+    override suspend fun getInfoTings(): List<LocalInfo> {
+        val response = runCatching {
+            infoDao.getRecords()
+        }
+        return response.getOrThrow().toLocalInfoList()
+    }
 
-    override fun insertRecords(localInfo: LocalInfo) =
+
+    override suspend fun insertRecords(localInfo: LocalInfo) {
         infoDao.insertRecords(localInfo.toDB())
+    }
 
-    override fun deleteRecords(localInfo: LocalInfo) =
+
+    override suspend fun deleteRecords(localInfo: LocalInfo) =
         infoDao.deleteRecords(localInfo.toDB())
 
-    override fun updateRecords(localInfo: LocalInfo) {
-        TODO("Not yet implemented")
+    override suspend fun updateRecords(localInfo: LocalInfo) {
+        infoDao.updateRecords(localInfo.toDB())
     }
 }
