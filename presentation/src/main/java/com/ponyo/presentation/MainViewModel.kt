@@ -8,8 +8,10 @@ import com.ponyo.domain.usecase.GetChannelUseCase
 import com.ponyo.domain.usecase.GetFeedUseCase
 import com.ponyo.domain.usecase.GetLocalInfoUseCase
 import com.ponyo.domain.usecase.InsertLocalInfoUseCase
+import com.ponyo.domain.usecase.UpdateLocalInfoUseCase
 import com.ponyo.presentation.uistate.ChannelUiState
 import com.ponyo.presentation.uistate.FeedUiState
+import com.ponyo.presentation.uistate.LocalInfoUiState
 import com.ponyo.presentation.uistate.toUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineExceptionHandler
@@ -31,7 +33,8 @@ class MainViewModel @Inject constructor(
     private val getChannelUseCase: GetChannelUseCase,
     private val getFeedUseCase: GetFeedUseCase,
     private val getLocalInfoUseCase: GetLocalInfoUseCase,
-    private val insertLocalInfoUseCase: InsertLocalInfoUseCase
+    private val insertLocalInfoUseCase: InsertLocalInfoUseCase,
+    private val updateLocalInfoUseCase: UpdateLocalInfoUseCase
 ) : ViewModel() {
 
     init {
@@ -47,8 +50,8 @@ class MainViewModel @Inject constructor(
     private val _feedUiState = MutableStateFlow(FeedUiState.Uninitialized)
     val feedUiState: StateFlow<FeedUiState> = _feedUiState.asStateFlow()
 
-    private val _localInfoUiState: MutableStateFlow<List<LocalInfo>> = MutableStateFlow(emptyList())
-    val localInfoUiState: StateFlow<List<LocalInfo>> = _localInfoUiState.asStateFlow()
+    private val _localInfoUiState: MutableStateFlow<LocalInfoUiState> = MutableStateFlow(LocalInfoUiState.Uninitialized)
+    val localInfoUiState: StateFlow<LocalInfoUiState> = _localInfoUiState.asStateFlow()
 
 
     private val _errorMessage: MutableSharedFlow<String?> = MutableSharedFlow(0)
@@ -119,15 +122,31 @@ class MainViewModel @Inject constructor(
 
     fun getLocalInfoList() {
         viewModelScope.launch {
-            _localInfoUiState.value = getLocalInfoUseCase.invoke()
-
+            val localResponse = getLocalInfoUseCase.invoke()
+            _localInfoUiState.update {
+                localInfoUiState.value.copy(
+                    localInfoList = localResponse
+                )
+            }
         }
     }
 
 
 
-    fun insertRecord(localInfo: LocalInfo) =
-        insertLocalInfoUseCase(localInfo)
+    fun insertRecord(localInfo: LocalInfo) {
+        viewModelScope.launch {
+            insertLocalInfoUseCase(localInfo)
+            getLocalInfoList()
+        }
+    }
+
+
+    fun updateRecord(localInfo: LocalInfo) {
+        viewModelScope.launch {
+            updateLocalInfoUseCase(localInfo)
+            getLocalInfoList()
+        }
+    }
 
 
     fun deleteRecord(localInfo: LocalInfo) {
