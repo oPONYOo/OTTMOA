@@ -40,24 +40,22 @@ class MainViewModel @Inject constructor(
     init {
         fetchChannels(NETFLIX_CHANNEL_ID, WATCHA_CHANNEL_ID)
         fetchFeeds(NETFLIX_CHANNEL_ID, WATCHA_CHANNEL_ID)
-//        getLocalInfoList()
     }
 
-    //
     private val _channelUiState = MutableStateFlow(ChannelUiState.Uninitialized)
     val channelUiState: StateFlow<ChannelUiState> = _channelUiState.asStateFlow()
 
     private val _feedUiState = MutableStateFlow(FeedUiState.Uninitialized)
     val feedUiState: StateFlow<FeedUiState> = _feedUiState.asStateFlow()
 
-    private val _localInfoUiState: MutableStateFlow<LocalInfoUiState> = MutableStateFlow(LocalInfoUiState.Uninitialized)
+    private val _localInfoUiState: MutableStateFlow<LocalInfoUiState> =
+        MutableStateFlow(LocalInfoUiState.Uninitialized)
     val localInfoUiState: StateFlow<LocalInfoUiState> = _localInfoUiState.asStateFlow()
 
 
     private val _errorMessage: MutableSharedFlow<String?> = MutableSharedFlow(0)
     val errorMessage: SharedFlow<String?> = _errorMessage.asSharedFlow()
-
-
+    
     fun fetchChannels(vararg channelIdList: String) {
 
         val handler = CoroutineExceptionHandler { _, t ->
@@ -76,12 +74,12 @@ class MainViewModel @Inject constructor(
         }
 
         viewModelScope.launch(handler) {
-            val response = getChannelUseCase(*channelIdList)
+            val channelResponse = getChannelUseCase(*channelIdList)
 
             _channelUiState.update {
                 channelUiState.value.copy(
                     isLoading = false,
-                    channelItems = response.toUiState()
+                    channelItems = channelResponse.toUiState()
                 )
             }
         }
@@ -131,26 +129,42 @@ class MainViewModel @Inject constructor(
         }
     }
 
-
-
     fun insertRecord(localInfo: LocalInfo) {
         viewModelScope.launch {
             insertLocalInfoUseCase(localInfo)
-            getLocalInfoList()
+            val list = localInfoUiState.value.localInfoList.toMutableList()
+            list.add(localInfo)
+            _localInfoUiState.update {
+                localInfoUiState.value.copy(
+                    localInfoList = list
+                )
+            }
         }
     }
-
 
     fun updateRecord(localInfo: LocalInfo) {
         viewModelScope.launch {
             updateLocalInfoUseCase(localInfo)
-            getLocalInfoList()
+            val list = localInfoUiState.value.localInfoList.toMutableList()
+            list.forEachIndexed { index, item ->
+                item.takeIf { it.id == localInfo.id }?.let {
+                    list[index] = it.copy(
+                        memoTxt = localInfo.memoTxt,
+                        starRate = localInfo.starRate
+                    )
+                }
+            }
+            _localInfoUiState.update {
+                localInfoUiState.value.copy(
+                    localInfoList = list
+                )
+            }
         }
     }
 
 
     fun deleteRecord(localInfo: LocalInfo) {
-
+        // TODO
     }
 
     fun initFeedUiState() {
