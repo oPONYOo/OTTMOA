@@ -102,9 +102,7 @@ class MainActivity : AppCompatActivity() {
             val pullRefreshState = rememberPullRefreshState(
                 refreshing = isRefreshing,
                 onRefresh = {
-                    Log.e("REFRESH", "REFRESH")
                     isRefreshing = true
-                    viewModel.getLocalInfoList()
                     if (nowId.isEmpty()) viewModel.getAllFeedItems()
                     else viewModel.fetchFeeds(nowId)
                 })
@@ -125,8 +123,6 @@ class MainActivity : AppCompatActivity() {
                         localInfoUiState = localInfoUiState,
                         errorMessage = errorMessage,
                         onClick = { localInfo, first ->
-                            Log.e("INFOOO", "$localInfo")
-                            Log.e("isFIRST", "$first")
                             if (first) viewModel.insertRecord(localInfo)
                             else viewModel.updateRecord(localInfo)
                         }
@@ -178,8 +174,6 @@ fun ChannelList(
             }
         }
     }
-
-
 }
 
 @Composable
@@ -193,8 +187,6 @@ fun FeedList(
     errorMessage?.let {
         makeToast(LocalContext.current, it)
     }
-
-    Log.e("LOCALLLLLLLL", "$localInfoUiState")
 
     val items = feedUiState.feedItems.map { feed ->
         Feed(
@@ -306,6 +298,9 @@ fun FeedItem(
                     )
                 Spacer(modifier = Modifier.height(5.dp))
                 item.description?.let { Text(text = it) }
+                item.memoTxt?.let {
+                    Memo(modifier = modifier, starRate = item.starRate!!, memoTxt = item.memoTxt)
+                }
             }
 
         }
@@ -327,7 +322,8 @@ fun FeedBottomSheet(
     onDismissRequest: (Boolean) -> Unit,
     onClick: ((LocalInfo, Boolean) -> Unit)
 ) {
-    BottomSheetDialog(
+    MemoLayout(modifier = modifier, feed = item, onClick)
+    /*BottomSheetDialog(
         onDismissRequest = {
             onDismissRequest(false)
         },
@@ -346,7 +342,7 @@ fun FeedBottomSheet(
         ) {
             MemoLayout(modifier = modifier, feed = item, onClick)
         }
-    }
+    }*/
 
 }
 
@@ -361,12 +357,11 @@ fun MemoLayout(modifier: Modifier, feed: Feed, onClick: ((LocalInfo, Boolean) ->
         frontLayerElevation = 8.dp,
         appBar = { },
         persistentAppBar = false,
-        headerHeight = 200.dp,
+        headerHeight = 50.dp,
         backLayerContent = {
-            feed.memoTxt?.let {
-                Log.e("memoooo", it)
+            /*feed.memoTxt?.let {
                 Memo(modifier = modifier, memoTxt = it, starRate = feed.starRate!!)
-            }
+            }*/
             /*if (items.isEmpty()) {
                 EmptyScreen()
             } else {
@@ -483,8 +478,6 @@ fun EditMemoLayout(modifier: Modifier, feed: Feed, onClick: (LocalInfo, Boolean)
                 )
         }
     }
-
-
 }
 
 @Composable
