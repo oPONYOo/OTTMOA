@@ -41,6 +41,7 @@ import androidx.compose.material.pullrefresh.rememberPullRefreshState
 import androidx.compose.material.rememberBackdropScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -279,10 +280,17 @@ fun FeedItem(
         mutableStateOf(false)
     }
 
+    var showMemoState by remember {
+        mutableStateOf(!item.memoTxt.isNullOrEmpty())
+    }
+
     Box(
         modifier = modifier
             .wrapContentSize()
-            .clickable { bottomSheetDialogState = true }
+            .clickable {
+                bottomSheetDialogState = !bottomSheetDialogState
+                showMemoState = false
+            }
     )
     {
         Surface()
@@ -298,57 +306,33 @@ fun FeedItem(
                     )
                 Spacer(modifier = Modifier.height(5.dp))
                 item.description?.let { Text(text = it) }
-                item.memoTxt?.let {
-                    Memo(modifier = modifier, starRate = item.starRate!!, memoTxt = item.memoTxt)
+                if (showMemoState) {
+                    item.memoTxt?.takeIf { it.isNotEmpty() }?.let {
+                        Memo(modifier = modifier, starRate = item.starRate!!, memoTxt = it)
+                    }
                 }
+
             }
 
         }
     }
 
-    if (bottomSheetDialogState) FeedBottomSheet(
+    if (bottomSheetDialogState) MemoLayout(
         modifier = modifier,
-        item = item,
+        feed = item,
         onDismissRequest = { bottomSheetDialogState = it },
         onClick = onClick
     )
 }
 
-
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun FeedBottomSheet(
+fun MemoLayout(
     modifier: Modifier,
-    item: Feed,
+    feed: Feed,
     onDismissRequest: (Boolean) -> Unit,
     onClick: ((LocalInfo, Boolean) -> Unit)
 ) {
-    MemoLayout(modifier = modifier, feed = item, onClick)
-    /*BottomSheetDialog(
-        onDismissRequest = {
-            onDismissRequest(false)
-        },
-        properties = BottomSheetDialogProperties(
-            dismissOnBackPress = false,
-            dismissOnClickOutside = true,
-            dismissWithAnimation = true,
-
-
-            )
-
-    ) {
-        // content
-        Surface(
-            modifier = modifier.background(color = Color.White, shape = RectangleShape)
-        ) {
-            MemoLayout(modifier = modifier, feed = item, onClick)
-        }
-    }*/
-
-}
-
-@OptIn(ExperimentalMaterialApi::class)
-@Composable
-fun MemoLayout(modifier: Modifier, feed: Feed, onClick: ((LocalInfo, Boolean) -> Unit)) {
     BackdropScaffold(
         modifier = modifier,
         scaffoldState = rememberBackdropScaffoldState(BackdropValue.Revealed),
@@ -380,18 +364,16 @@ fun MemoLayout(modifier: Modifier, feed: Feed, onClick: ((LocalInfo, Boolean) ->
                 }
 
             }*/
-
-
         },
         frontLayerContent = {
-            EditMemoLayout(modifier, feed, onClick)
+            EditMemoLayout(modifier, feed, onDismissRequest, onClick)
         }
     )
 }
 
 @Composable
 fun Memo(modifier: Modifier, starRate: Int, memoTxt: String) {
-    Column(modifier.padding(start = 10.dp)) {
+    Column(modifier.padding(start = 5.dp)) {
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -414,9 +396,14 @@ fun Memo(modifier: Modifier, starRate: Int, memoTxt: String) {
 
 
 @Composable
-fun EditMemoLayout(modifier: Modifier, feed: Feed, onClick: (LocalInfo, Boolean) -> Unit) {
-    var memoTxt by remember { mutableStateOf("") }
-    Column(modifier.padding(start = 10.dp)) {
+fun EditMemoLayout(
+    modifier: Modifier,
+    feed: Feed,
+    onDismissRequest: (Boolean) -> Unit,
+    onClick: (LocalInfo, Boolean) -> Unit
+) {
+    var memoTxt by remember { mutableStateOf(feed.memoTxt) }
+    Column(modifier.padding(start = 5.dp)) {
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
@@ -432,6 +419,7 @@ fun EditMemoLayout(modifier: Modifier, feed: Feed, onClick: (LocalInfo, Boolean)
                         memoTxt = memoTxt,
                         thumbnail = feed.thumbnail
                     )
+                    onDismissRequest(false)
                     onClick(localInfo, feed.memoTxt.isNullOrBlank())
                     memoTxt = ""
                 },
@@ -452,9 +440,8 @@ fun EditMemoLayout(modifier: Modifier, feed: Feed, onClick: (LocalInfo, Boolean)
             color = Color.LightGray
         )
         Row {
-
             TextField(
-                value = memoTxt,
+                value = memoTxt ?: "",
                 onValueChange = { textValue -> memoTxt = textValue },
                 modifier = Modifier
                     .fillMaxWidth()
