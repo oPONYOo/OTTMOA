@@ -22,7 +22,7 @@ internal fun List<DB>.toLocalInfoList(): List<LocalInfo> =
 fun DB.toLocalInfo(): LocalInfo =
     LocalInfo(
         id = id,
-        starRate = starRate,
+        starRate = starRate ?: 0,
         memoTxt = memoTxt,
         thumbnail = thumbnail
     )

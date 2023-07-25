@@ -52,12 +52,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PaintingStyle.Companion.Stroke
-import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.graphics.drawscope.Fill
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -71,8 +66,6 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
-import com.holix.android.bottomsheetdialog.compose.BottomSheetDialog
-import com.holix.android.bottomsheetdialog.compose.BottomSheetDialogProperties
 import com.ponyo.domain.entity.LocalInfo
 import com.ponyo.presentation.model.Channel
 import com.ponyo.presentation.model.Feed
@@ -115,7 +108,6 @@ class MainActivity : AppCompatActivity() {
                     nowId = id
                     if (id.isEmpty()) viewModel.getAllFeedItems()
                     else viewModel.fetchFeeds(id)
-
                 })
                 Box(modifier = pullRefreshModifier, contentAlignment = Alignment.TopCenter) {
                     FeedList(
@@ -197,7 +189,7 @@ fun FeedList(
             date = feed.date,
             description = feed.description,
             bookMarked = false,
-            starRate = localInfoUiState.localInfoList.firstOrNull { feed.videoId == it.id }?.starRate,
+            starRate = localInfoUiState.localInfoList.firstOrNull { feed.videoId == it.id }?.starRate ?: 0,
             memoTxt = localInfoUiState.localInfoList.firstOrNull { feed.videoId == it.id }?.memoTxt
 
         )
@@ -308,7 +300,7 @@ fun FeedItem(
                 item.description?.let { Text(text = it) }
                 if (showMemoState) {
                     item.memoTxt?.takeIf { it.isNotEmpty() }?.let {
-                        Memo(modifier = modifier, starRate = item.starRate!!, memoTxt = it)
+                        Memo(modifier = modifier, starRate = item.starRate, memoTxt = it)
                     }
                 }
 
@@ -378,7 +370,7 @@ fun Memo(modifier: Modifier, starRate: Int, memoTxt: String) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             // 평점
-            StarRate(modifier)
+            StarRate(modifier, isEditing = false, filledStarCount = starRate)
         }
         Divider(
             modifier = Modifier
@@ -403,19 +395,30 @@ fun EditMemoLayout(
     onClick: (LocalInfo, Boolean) -> Unit
 ) {
     var memoTxt by remember { mutableStateOf(feed.memoTxt) }
+    var starRate by remember { mutableStateOf(feed.starRate) }
+
     Column(modifier.padding(start = 5.dp)) {
         Row(
             verticalAlignment = Alignment.CenterVertically
         ) {
             // 평점
-            StarRate(modifier)
+            StarRate(modifier, isEditing = true, filledStarCount = starRate,
+                onClick = {
+                    if (it) starRate += 1
+                    else starRate -= 1
+                }
+            )
             Spacer(modifier = modifier.width(70.dp))
             Button(
                 onClick = {
+                    if (memoTxt.isNullOrEmpty()) {
+                        return@Button
+                    }
 
+                    Log.e("STARRR", "$starRate")
                     val localInfo = LocalInfo(
                         id = feed.videoId,
-                        starRate = 1,
+                        starRate = starRate,
                         memoTxt = memoTxt,
                         thumbnail = feed.thumbnail
                     )
@@ -468,7 +471,7 @@ fun EditMemoLayout(
 }
 
 @Composable
-fun StarRate(modifier: Modifier) {
+fun StarRate(modifier: Modifier, isEditing: Boolean, filledStarCount: Int, onClick: ((Boolean) -> Unit)? = null) {
     val starRateList = listOf(
         StarRate(1),
         StarRate(2),
@@ -476,21 +479,35 @@ fun StarRate(modifier: Modifier) {
         StarRate(4),
         StarRate(5)
     )
+    (0 until filledStarCount).forEach { _ ->
+        starRateList.map {
+            it.copy(isFilled = true)
+        }
+    }
+
+
+    // 컴포즈 별점 라이브러리
     LazyRow {
         items(starRateList, key = { star -> star.id }) { star ->
-            StarButtonContent(modifier, true)
+            StarButtonContent(modifier, star.isFilled, onClick = onClick ?: return@items)
         }
     }
 }
 
 @Composable
-fun StarButtonContent(modifier: Modifier, isGood: Boolean) {
-    if (isGood) {
+fun StarButtonContent(modifier: Modifier, isGood: Boolean, onClick: (Boolean) -> Unit) {
+    var changeStarRate by remember {
+        mutableStateOf(isGood)
+    }
+    if (changeStarRate) {
         Icon(
             painter = painterResource(id = R.drawable.outline_star_24),
             contentDescription = "꽉찬 별",
             modifier
-                .clickable { }
+                .clickable {
+                    changeStarRate = !changeStarRate
+                    onClick(changeStarRate)
+                }
                 .padding(start = 10.dp),
             tint = Color.Gray,
         )
@@ -499,7 +516,10 @@ fun StarButtonContent(modifier: Modifier, isGood: Boolean) {
             painter = painterResource(id = R.drawable.baseline_star_border_24),
             contentDescription = "빈 별",
             modifier
-                .clickable { }
+                .clickable {
+                    changeStarRate = !changeStarRate
+                    onClick(changeStarRate)
+                }
                 .padding(start = 10.dp),
             tint = Color.LightGray,
         )
